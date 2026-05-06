@@ -1,0 +1,30 @@
+{
+    "light":{
+        "background":{
+            "normal":"#FFFFFF",
+            "hovered":"#F1F5FB",
+            "selected":"#DCE7FA",
+            "disabled":"#DADEE6"
+        },
+        "header":{"background":"#e4eaf2","text":"#818a99","spliter":"#adb8cc"},
+        "text0":"#1F2C40",
+        "text1":"#4F545C",
+        "text2":"#090A0A",
+        "text3":"#090A0A",
+        "text4":"#4F545C"
+    },
+    "dark":{
+        "background":{
+            "normal":"#1E1E21",
+            "hovered":"#2E2F33",
+            "selected":"#2E2F33",
+            "disabled":"#DADEE6"
+        },
+        "header":{"background":"#3d4145","text":"#ebebeb","spliter":"#535458"},
+        "text0":"#EBEBEB",
+        "text1":"#898C99",
+        "text2":"#898C99",
+        "text3":"#C8C9CC",
+        "text4":"#898C99"
+    }
+}

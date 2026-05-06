@@ -1,0 +1,44 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34408.163
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DiskHealth", "DiskHealth\DiskHealth.vcxproj", "{C7DC8A7F-DC1D-47D0-906A-616F4B074693}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release_x64|Win32 = Release_x64|Win32
+		Release_x64|x64 = Release_x64|x64
+		Release_x64|x86 = Release_x64|x86
+		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C7DC8A7F-DC1D-47D0-906A-616F4B074693}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C7DC8A7F-DC1D-47D0-906A-616F4B074693}.Debug|Win32.Build.0 = Debug|Win32
+		{C7DC8A7F-DC1D-47D0-906A-616F4B074693}.Debug|x64.ActiveCfg = Debug|x64
+		{C7DC8A7F-DC1D-47D0-906A-616F4B074693}.Debug|x64.Build.0 = Debug|x64
+		{C7DC8A7F-DC1D-47D0-906A-616F4B074693}.Debug|x86.ActiveCfg = Debug|x64
+		{C7DC8A7F-DC1D-47D0-906A-616F4B074693}.Release_x64|Win32.ActiveCfg = Release_x64|Win32
+		{C7DC8A7F-DC1D-47D0-906A-616F4B074693}.Release_x64|Win32.Build.0 = Release_x64|Win32
+		{C7DC8A7F-DC1D-47D0-906A-616F4B074693}.Release_x64|x64.ActiveCfg = Release_x64|x64
+		{C7DC8A7F-DC1D-47D0-906A-616F4B074693}.Release_x64|x64.Build.0 = Release_x64|x64
+		{C7DC8A7F-DC1D-47D0-906A-616F4B074693}.Release_x64|x86.ActiveCfg = Release_x64|Win32
+		{C7DC8A7F-DC1D-47D0-906A-616F4B074693}.Release_x64|x86.Build.0 = Release_x64|Win32
+		{C7DC8A7F-DC1D-47D0-906A-616F4B074693}.Release|Win32.ActiveCfg = Release|Win32
+		{C7DC8A7F-DC1D-47D0-906A-616F4B074693}.Release|Win32.Build.0 = Release|Win32
+		{C7DC8A7F-DC1D-47D0-906A-616F4B074693}.Release|x64.ActiveCfg = Release|x64
+		{C7DC8A7F-DC1D-47D0-906A-616F4B074693}.Release|x64.Build.0 = Release|x64
+		{C7DC8A7F-DC1D-47D0-906A-616F4B074693}.Release|x86.ActiveCfg = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D4B92818-D627-402B-A479-789FEBDEF65F}
+	EndGlobalSection
+EndGlobal
