@@ -45,6 +45,7 @@ protected:
 	DiskInfoMgr *m_mgr = nullptr;
 };
 
+class CDiskHealthMainWin;
 class DiskInfoMgr :public QObject, public QAbstractNativeEventFilter
 {
 	Q_OBJECT
@@ -111,7 +112,8 @@ public:
 
 	bool checkHasSmartError(int index);
 
-	void setEngine(QQmlApplicationEngine *engine) { m_engine = engine; }
+	void setMaminWin(CDiskHealthMainWin* w) { m_pMainWin = w; }
+	//void setEngine(QQmlApplicationEngine *engine) { m_engine = engine; }
 	QString getFeature(int index);
 	QString GetAttributeDesc(CAtaSmart::ATA_SMART_INFO* pInfo, ULONG dwId);
 	bool ProcessSectorAttr(ListInfo &info, CAtaSmart::ATA_SMART_INFO* pInfo, int j);
@@ -157,7 +159,8 @@ protected:
 	AttrModel m_model;
 	QString m_strCurLang;
 	QTranslator m_translator;
-	QQmlApplicationEngine *m_engine = nullptr;
+	CDiskHealthMainWin* m_pMainWin = nullptr;
+	//QQmlApplicationEngine *m_engine = nullptr;
 	RefreshThread m_refreshThread;
 	CTrayIcon *m_tray = nullptr;
 	QWindow *m_pW = nullptr;
@@ -178,4 +181,6 @@ protected:
 	bool m_bVisible = false;
 	bool m_bIsTempF = false;
 	bool m_bNoEnter = true;
+
+	
 };

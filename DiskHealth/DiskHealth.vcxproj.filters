@@ -22,6 +22,9 @@
       <Extensions>qrc;*</Extensions>
       <ParseFiles>false</ParseFiles>
     </Filter>
+    <Filter Include="ui">
+      <UniqueIdentifier>{e7bafdd4-c1c7-45a9-ac2e-a1bde04cbff7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="DiskHealth.qrc">
@@ -64,6 +67,9 @@
     </ClCompile>
     <ClCompile Include="anothercheck.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\DiskHealthMainWin.cpp">
+      <Filter>ui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -110,6 +116,9 @@
     </QtMoc>
     <QtMoc Include="CTrayIcon.h">
       <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="ui\DiskHealthMainWin.h">
+      <Filter>ui</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

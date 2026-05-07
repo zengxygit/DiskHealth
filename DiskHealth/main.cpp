@@ -9,6 +9,8 @@
 #include <QQuickView>
 #include <QWidget>
 #include <QSettings>
+#include "ui\DiskHealthMainWin.h"
+
 #ifdef _WIN32_WINNT
 #undef _WIN32_WINNT
 
@@ -67,15 +69,19 @@ int main(int argc, char *argv[])
 	QString path = QDir(qApp->applicationDirPath()).absolutePath() + "/DiskHealth.rcc";
 	QResource::registerResource(path);
 
-	QQmlApplicationEngine engine;
+	//QQmlApplicationEngine engine;
+	CDiskHealthMainWin mainWin;
+
 	DiskInfoMgr dim;
-	dim.setEngine(&engine);
+	//dim.setEngine(&engine);
+	dim.setMaminWin(&mainWin);
 	dim.initMultiLanguage();
 	dim.setCurrrentLanguage(dim.getCurrentLanguage());
-	engine.rootContext()->setContextProperty("diskInfoMgr", &dim);
-	
+	//engine.rootContext()->setContextProperty("diskInfoMgr", &dim);
+
+	mainWin.show();
 	if ( !isConsole)
-		engine.load(QUrl(QString("qrc:/qml/main.qml")));
+		//engine.load(QUrl(QString("qrc:/qml/main.qml")));
 
     return a.exec();
 }

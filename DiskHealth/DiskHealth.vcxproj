@@ -103,13 +103,16 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <OutDir>$(SolutionDir)..\..\Output\$(Configuration)_$(Platform)\</OutDir>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>..\..\Mediate\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_x64|x64'">
-    <OutDir>$(SolutionDir)..\..\Output\$(Configuration)_$(Platform)\</OutDir>
+    <OutDir>..\..\Output\DiskCopy\$(Configuration)\</OutDir>
+    <IntDir>..\..\..\Mediate\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)..\..\Output\$(Configuration)_$(Platform)\</OutDir>
+    <OutDir>..\..\Output\DiskCopy\Release\</OutDir>
+    <IntDir>..\..\Mediate\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_x64|Win32'">
     <OutDir>$(SolutionDir)..\..\Output\$(Configuration)_$(Platform)\</OutDir>
@@ -153,7 +156,7 @@
       <DynamicSource>false</DynamicSource>
     </QtRcc>
     <ClCompile>
-      <AdditionalIncludeDirectories>.\AtaProc;$(Qt_INCLUDEPATH_);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\ui;.\AtaProc;$(Qt_INCLUDEPATH_);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_AFXDLL;_MANUAL_LOAD_ALIYUN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <PreBuildEvent>
@@ -178,6 +181,8 @@
     </PreBuildEvent>
     <Link>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
+      <AdditionalDependencies>QtLib.lib;TBPublic.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\Output\lib_$(Configuration);$(OutDir);..\..\Output\DiskCopy\lib_$(Configuration);..\..\Output\$(Configuration);..\..\ShareLib\Output\lib_$(Configuration);..\..\ShareLib\Output\lib_Release_x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -194,6 +199,8 @@
     </PreBuildEvent>
     <Link>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
+      <AdditionalDependencies>QtLib.lib;TBPublic.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\Output\lib_$(Configuration);..\..\Output\DiskCopy\lib_$(Configuration);..\..\Output\$(Configuration);..\..\ShareLib\Output\lib_$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_x64|Win32'">
@@ -326,6 +333,7 @@
   <ItemGroup>
     <ClCompile Include="anothercheck.cpp" />
     <ClCompile Include="tray.cpp" />
+    <ClCompile Include="ui\DiskHealthMainWin.cpp" />
     <QtRcc Include="DiskHealth.qrc" />
     <ClCompile Include="AtaProc\AtaSmart.cpp" />
     <ClCompile Include="AtaProc\NVMeInterpreter.cpp" />
@@ -348,6 +356,7 @@
     <ClInclude Include="AtaProc\stdafx.h" />
     <ClInclude Include="AtaProc\StorageQuery.h" />
     <ClInclude Include="AtaProc\UtilityFx.h" />
+    <QtMoc Include="ui\DiskHealthMainWin.h" />
     <QtMoc Include="CTrayIcon.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="resource1.h" />

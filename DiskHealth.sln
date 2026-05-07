@@ -5,6 +5,8 @@ VisualStudioVersion = 17.8.34408.163
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DiskHealth", "DiskHealth\DiskHealth.vcxproj", "{C7DC8A7F-DC1D-47D0-906A-616F4B074693}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "QtLib", "..\DiskCopy\mod.TBQtLib\QtLib_diskcopy.vcxproj", "{0BA1FEE1-6E01-4A93-8527-0A8C23CF4C9F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -34,6 +36,24 @@ Global
 		{C7DC8A7F-DC1D-47D0-906A-616F4B074693}.Release|x64.ActiveCfg = Release|x64
 		{C7DC8A7F-DC1D-47D0-906A-616F4B074693}.Release|x64.Build.0 = Release|x64
 		{C7DC8A7F-DC1D-47D0-906A-616F4B074693}.Release|x86.ActiveCfg = Release|x64
+		{0BA1FEE1-6E01-4A93-8527-0A8C23CF4C9F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0BA1FEE1-6E01-4A93-8527-0A8C23CF4C9F}.Debug|Win32.Build.0 = Debug|Win32
+		{0BA1FEE1-6E01-4A93-8527-0A8C23CF4C9F}.Debug|x64.ActiveCfg = Debug|x64
+		{0BA1FEE1-6E01-4A93-8527-0A8C23CF4C9F}.Debug|x64.Build.0 = Debug|x64
+		{0BA1FEE1-6E01-4A93-8527-0A8C23CF4C9F}.Debug|x86.ActiveCfg = Debug|Win32
+		{0BA1FEE1-6E01-4A93-8527-0A8C23CF4C9F}.Debug|x86.Build.0 = Debug|Win32
+		{0BA1FEE1-6E01-4A93-8527-0A8C23CF4C9F}.Release_x64|Win32.ActiveCfg = Release_x64|Win32
+		{0BA1FEE1-6E01-4A93-8527-0A8C23CF4C9F}.Release_x64|Win32.Build.0 = Release_x64|Win32
+		{0BA1FEE1-6E01-4A93-8527-0A8C23CF4C9F}.Release_x64|x64.ActiveCfg = Release_x64|x64
+		{0BA1FEE1-6E01-4A93-8527-0A8C23CF4C9F}.Release_x64|x64.Build.0 = Release_x64|x64
+		{0BA1FEE1-6E01-4A93-8527-0A8C23CF4C9F}.Release_x64|x86.ActiveCfg = Release_x64|Win32
+		{0BA1FEE1-6E01-4A93-8527-0A8C23CF4C9F}.Release_x64|x86.Build.0 = Release_x64|Win32
+		{0BA1FEE1-6E01-4A93-8527-0A8C23CF4C9F}.Release|Win32.ActiveCfg = Release|Win32
+		{0BA1FEE1-6E01-4A93-8527-0A8C23CF4C9F}.Release|Win32.Build.0 = Release|Win32
+		{0BA1FEE1-6E01-4A93-8527-0A8C23CF4C9F}.Release|x64.ActiveCfg = Release|x64
+		{0BA1FEE1-6E01-4A93-8527-0A8C23CF4C9F}.Release|x64.Build.0 = Release|x64
+		{0BA1FEE1-6E01-4A93-8527-0A8C23CF4C9F}.Release|x86.ActiveCfg = Release|Win32
+		{0BA1FEE1-6E01-4A93-8527-0A8C23CF4C9F}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

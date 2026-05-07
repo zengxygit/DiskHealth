@@ -17,6 +17,9 @@
 
 #include <vector>
 #include "../../ShareLib/AliyunLog-2017/include/AliyunWrap.h"
+
+#include "ui/DiskHealthMainWin.h"
+
 using namespace std;
 
 #define OEM_NAME_XAGON   "Xagon"
@@ -609,7 +612,7 @@ Q_INVOKABLE void DiskInfoMgr::setCurrrentLanguage(QString lang)
 		m_strCurLang = lang;
 		bool bLoad = m_translator.load(file);
 		bLoad = qApp->installTranslator(&m_translator);
-		m_engine->retranslate();
+		//m_engine->retranslate();
 		m_attrNames = loadDiskAttrs();
 
 		m_listStatusDes.clear();
