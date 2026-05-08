@@ -3,7 +3,7 @@
 #include <QVariant>
 #include <QTranslator>
 #include <QThread>
-#include <QQmlApplicationEngine>
+//#include <QQmlApplicationEngine>
 #include <QWindow>
 #include <QTimer>
 

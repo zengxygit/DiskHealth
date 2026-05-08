@@ -1,6 +1,6 @@
 #include "DiskInfoMgr.h"
 
-#include <QQmlApplicationEngine>
+//#include <QQmlApplicationEngine>
 #include <QGuiApplication>
 #include <QSettings>
 #include <QDir>

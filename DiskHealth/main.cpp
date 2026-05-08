@@ -1,12 +1,12 @@
 #include "DiskInfoMgr.h"
 #include <QFont>
 #include <QApplication>
-#include <QQmlApplicationEngine>
+//#include <QQmlApplicationEngine>
 #include <QResource>
 #include <QDir>
 #include <QIcon>
-#include <QQmlContext>
-#include <QQuickView>
+//#include <QQmlContext>
+//#include <QQuickView>
 #include <QWidget>
 #include <QSettings>
 #include "ui\DiskHealthMainWin.h"
@@ -70,9 +70,10 @@ int main(int argc, char *argv[])
 	QResource::registerResource(path);
 
 	//QQmlApplicationEngine engine;
-	CDiskHealthMainWin mainWin;
+	
 
 	DiskInfoMgr dim;
+	CDiskHealthMainWin mainWin(&dim);
 	//dim.setEngine(&engine);
 	dim.setMaminWin(&mainWin);
 	dim.initMultiLanguage();

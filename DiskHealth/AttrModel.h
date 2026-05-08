@@ -26,7 +26,7 @@ public:
 		endResetModel();
 	}
 
-protected:
+public:
 	QModelIndex parent(const QModelIndex &index) const;
 	Qt::ItemFlags flags(const QModelIndex &index) const;
 	QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
