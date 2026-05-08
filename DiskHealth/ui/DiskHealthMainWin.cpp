@@ -72,24 +72,18 @@ void CDiskHealthMainWin::showEvent(QShowEvent* event)
 
 void CDiskHealthMainWin::onDiskSelected(int index)
 {
-	if (index >= 0)
-	{
-		updateDiskInfo(index);
-		if (m_pDiskMgr)
-		{
-			m_pDiskMgr->selectDisk(index);
+	if (index < 0) return;
 
-			// 检查数据是否有效，若无效则强制刷新一次
-			QVariantMap status = m_pDiskMgr->getDiskStatus(index);
-			if (status.isEmpty() || status["statusInfo"].toString().isEmpty())
-			{
+	updateDiskInfo(index);
+	if (m_pDiskMgr) {
+		m_pDiskMgr->selectDisk(index);
+
+		QVariantMap status = m_pDiskMgr->getDiskStatus(index);
+		if (status.isEmpty() || status["statusInfo"].toString().isEmpty()) {
+			// 避免在刷新线程运行时再次触发刷新
+			if (!m_pDiskMgr->isBusy())
 				m_pDiskMgr->refreshDisks();
-			}
 		}
-
-		//// 强制立即重绘表格
-		//if (m_pAtrriList) m_pAtrriList->viewport()->update();
-		//if (m_pDiskStatusTable) m_pDiskStatusTable->viewport()->update();
 	}
 }
 
@@ -130,14 +124,9 @@ void CDiskHealthMainWin::onDoneClicked()
 
 void CDiskHealthMainWin::onDiskInfosChanged()
 {
-	// 刷新磁盘列表，并保持当前选中的索引（如果有）
-	int oldIndex = m_pDiskList->currentIndex();
-	loadDiskList();
-	if (oldIndex >= 0 && oldIndex < m_pDiskList->count())
-		m_pDiskList->setCurrentIndex(oldIndex);
-	else if (m_pDiskList->count() > 0)
-		m_pDiskList->setCurrentIndex(0);
-	//setWaitingOverlayVisible(false);
+	loadDiskList();          // 不再需要保存和恢复 oldIndex
+	// 若当前无选中项但列表非空，选中第一个（上述 loadDiskList 已处理）
+	// setWaitingOverlayVisible(false);
 }
 
 void CDiskHealthMainWin::onLanguageChanged()
@@ -176,15 +165,31 @@ static QString stripHtml(const QString& html) {
 
 void CDiskHealthMainWin::loadDiskList()
 {
-	if (!m_pDiskMgr)
-		return;
+	if (!m_pDiskMgr) return;
+
 	QVariantList disks = m_pDiskMgr->getDiskInfos();
-	m_pDiskList->clear();
-	for (const QVariant& v : disks)
-	{
-		m_pDiskList->addItem(stripHtml(v.toString()));
+	int newCount = disks.size();
+	int oldCount = m_pDiskList->count();
+
+	// 调整条目数量
+	if (newCount > oldCount) {
+		for (int i = oldCount; i < newCount; ++i)
+			m_pDiskList->addItem("");
 	}
-	if (m_pDiskList->count() > 0 && m_currentDiskIndex == -1)
+	else if (newCount < oldCount) {
+		for (int i = oldCount - 1; i >= newCount; --i)
+			m_pDiskList->removeItem(i);
+	}
+
+	// 更新文本（仅文本变化，不改变 currentIndex）
+	for (int i = 0; i < newCount; ++i) {
+		QString text = stripHtml(disks[i].toString());
+		if (m_pDiskList->itemText(i) != text)
+			m_pDiskList->setItemText(i, text);
+	}
+
+	// 如果原来没有选中项且有可用磁盘，默认选中第一个
+	if (m_pDiskList->count() > 0 && m_pDiskList->currentIndex() == -1)
 		m_pDiskList->setCurrentIndex(0);
 }
 
@@ -411,7 +416,8 @@ void CDiskHealthMainWin::InitStatusWid(QBoxLayout* m_pStatusWid)
 		if (m_pStatusWid == nullptr) break;
 		
 		QVBoxLayout* pLeft = new(std::nothrow) QVBoxLayout;
-		pLeft->setSpacing(0);
+		pLeft->setContentsMargins(5, 5, 5, 5);
+		pLeft->setSpacing(5);
 
 		auto* pTitleLb = new (std::nothrow) CBPLabel;
 		pTitleLb->setText(tr("Status"));
@@ -419,9 +425,8 @@ void CDiskHealthMainWin::InitStatusWid(QBoxLayout* m_pStatusWid)
 		m_pHealthPersentTxt = new (std::nothrow) CBPLabel;
 
 		pLeft->addWidget(pTitleLb);
-		pLeft->addWidget(m_pHealthPersentTxt);
 		pLeft->addWidget(m_pStatusText);
-
+		pLeft->addWidget(m_pHealthPersentTxt);
 
 		//m_pStatusPix = new (std::nothrow) CBPLabel;
 		//m_pStatusPix->setFixedSize(48, 70);
@@ -437,7 +442,8 @@ void CDiskHealthMainWin::InitTempWid(QBoxLayout* pTempWid)
 		if (pTempWid == nullptr) break;
 	
 		auto* pLeft = new(std::nothrow) QVBoxLayout;
-		pLeft->setSpacing(0);
+		pLeft->setContentsMargins(5, 5, 5, 5);
+		pLeft->setSpacing(5);
 
 		auto* pTitleLb = new (std::nothrow) CBPLabel;
 		pTitleLb->setText(tr("Temperature"));
@@ -519,6 +525,8 @@ void CDiskHealthMainWin::Init()
 		m_pStatusWid = new (std::nothrow) QFrame;
 		m_pStatusWid->setFixedSize(140, 70);
 		QHBoxLayout* pStatusLayout = new (std::nothrow) QHBoxLayout(m_pStatusWid);
+		pStatusLayout->setSpacing(0);
+		pStatusLayout->setContentsMargins(0, 0, 0, 0);
 		m_pStatusWid->setObjectName("StatusWid");
 		pLeftTopWid->PackStart(m_pStatusWid, false, false, 0);
 
