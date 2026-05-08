@@ -1,51 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>publicQML/EuActivateComponent.qml</file>
-        <file>publicQML/EuBorderShadowRect.qml</file>
-        <file>publicQML/EuBorderShadowRectEx.qml</file>
-        <file>publicQML/EuBusyIndicator.qml</file>
-        <file>publicQML/EuButtonForTest.qml</file>
-        <file>publicQML/EuBuyNowBtn.qml</file>
-        <file>publicQML/EuCheckBox.qml</file>
-        <file>publicQML/EuCircleProgress.qml</file>
-        <file>publicQML/EuCombobox.qml</file>
-        <file>publicQML/EuDefaultRoundButton.qml</file>
-        <file>publicQML/EuGradientProgressBar.qml</file>
-        <file>publicQML/EuImageButton.qml</file>
-        <file>publicQML/EuImageButtonGroup.qml</file>
-        <file>publicQML/EuLinkLabel.qml</file>
-        <file>publicQML/EuMenuItem.qml</file>
-        <file>publicQML/EuMessageBox.qml</file>
-        <file>publicQML/EuPageLoader.qml</file>
-        <file>publicQML/EuPageLoaderPage.qml</file>
-        <file>publicQML/EuPopupMenu.qml</file>
-        <file>publicQML/EuPopWindow.qml</file>
-        <file>publicQML/EuRadioButton.qml</file>
-        <file>publicQML/EuRotatingWait.qml</file>
-        <file>publicQML/EuRoundButton.qml</file>
-        <file>publicQML/EuRoundButtonLegacy.qml</file>
-        <file>publicQML/EuRoundCapProgressBar.qml</file>
-        <file>publicQML/EuRoundedGradientRectangle.qml</file>
-        <file>publicQML/EuRoundedRectangle.qml</file>
-        <file>publicQML/EuRoundedRectangleEx.qml</file>
-        <file>publicQML/EuScrollBar.qml</file>
-        <file>publicQML/EuScrollView.qml</file>
-        <file>publicQML/EuScrollViewStyle.qml</file>
-        <file>publicQML/EuSheetView.json</file>
-        <file>publicQML/EuSheetView.qml</file>
-        <file>publicQML/EuSwitchButton.qml</file>
-        <file>publicQML/EuText.qml</file>
-        <file>publicQML/EuTextFieldStyle.qml</file>
-        <file>publicQML/EuTextInput.qml</file>
-        <file>publicQML/EuThemeImage.qml</file>
-        <file>publicQML/EuToolTip.qml</file>
-        <file>publicQML/EuTreeView.qml</file>
-        <file>publicQML/EuUrlImage.qml</file>
-        <file>publicQML/public.js</file>
-        <file>publicQML/PublicLoader.qml</file>
-        <file>qml/main.qml</file>
-        <file>qml/Title.qml</file>
-        <file>publicQML/EPMCombobox.qml</file>
         <file>res/ico_popup_close_disable.png</file>
         <file>res/ico_popup_close_hover.png</file>
         <file>res/ico_popup_close_normal.png</file>
@@ -56,7 +10,6 @@
         <file>res/ico_list_open_press.png</file>
         <file>res/icon_button_refresh_blue18.png</file>
         <file>res/icon_button_refresh_gray18.png</file>
-        <file>qml/InfoItem.qml</file>
         <file>res/pic_status_bad.png</file>
         <file>res/pic_status_good.png</file>
         <file>res/pic_status_none.png</file>
@@ -75,14 +28,11 @@
         <file>res/check_select.png</file>
         <file>res/check_unsel_disable.png</file>
         <file>res/check_unselect.png</file>
-        <file>qml/InfoList.qml</file>
         <file>res/loading00.png</file>
-        <file>qml/RotatingWait.qml</file>
         <file>res/ico_popup_menu_disable.png</file>
         <file>res/ico_popup_menu_hover.png</file>
         <file>res/ico_popup_menu_normal.png</file>
         <file>res/ico_popup_menu_press.png</file>
-        <file>qml/MultiLanguage.qml</file>
         <file>res/ico_language_gou.png</file>
         <file>res/ico_list_right_normal.png</file>
         <file>res/disksmart icon.ico</file>
@@ -90,18 +40,13 @@
         <file>res/ico_logo_pallets_disksmart16.png</file>
         <file>res/ico_exit16.png</file>
         <file>res/ico_show16.png</file>
-        <file>qml/HoverWidget.qml</file>
         <file>res/ico_disk_32.png</file>
-        <file>qml/CautionWidget.qml</file>
-        <file>qml/Theme.qml</file>
-        <file>qml/ThemeBase.json</file>
         <file>res/dark/check_halfsel.png</file>
         <file>res/dark/check_halfsel_disable.png</file>
         <file>res/dark/check_sel_disable.png</file>
         <file>res/dark/check_select.png</file>
         <file>res/dark/check_unsel_disable.png</file>
         <file>res/dark/check_unselect.png</file>
-        <file>publicQML/EuRoundButton.json</file>
         <file>res/dark/icon_button_refresh_blue18.png</file>
         <file>res/dark/icon_button_refresh_gray18.png</file>
         <file>res/dark/ico_popup_close_disable.png</file>
@@ -112,7 +57,6 @@
         <file>res/dark/ico_popup_menu_hover.png</file>
         <file>res/dark/ico_popup_menu_normal.png</file>
         <file>res/dark/ico_popup_menu_press.png</file>
-        <file>publicQML/MenuTheme.json</file>
         <file>res/dark/ico_language_gou.png</file>
         <file>res/dark/ico_list_open_disable.png</file>
         <file>res/dark/ico_list_open_hover.png</file>
@@ -124,10 +68,6 @@
         <file>res/dark/pic_temprature_none.png</file>
         <file>res/dark/pic_temprature_normal.png</file>
         <file>res/dark/pic_temprature_warning.png</file>
-        <file>publicQML/EuTreeView.json</file>
         <file>res/dark/loading00.png</file>
-        <file>publicQML/EuScrollViewStyleOld.qml</file>
-        <file>publicQML/EuTreeViewOld.qml</file>
-        <file>publicQML/EuRoundButtonOld.qml</file>
     </qresource>
 </RCC>
