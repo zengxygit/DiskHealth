@@ -6,6 +6,7 @@
 #include "../../../DiskCopy/mod.TBQtLib/BPPushBtn.h"
 #include "../../../DiskCopy/mod.TBQtLib/BPTableWidget.h"
 #include "../../../DiskCopy/mod.TBQtLib/BPCheckBox.h"
+#include "../../../DiskCopy/mod.TBQtLib/BPImageButton.h"
 
 CDiskHealthMainWin::CDiskHealthMainWin(DiskInfoMgr* pDiskMgr, QWidget* parent)
 	: CBPWinFrm(parent)
@@ -124,8 +125,7 @@ void CDiskHealthMainWin::onDoneClicked()
 
 void CDiskHealthMainWin::onDiskInfosChanged()
 {
-	loadDiskList();          // 不再需要保存和恢复 oldIndex
-	// 若当前无选中项但列表非空，选中第一个（上述 loadDiskList 已处理）
+	loadDiskList();         
 	// setWaitingOverlayVisible(false);
 }
 
@@ -268,39 +268,28 @@ void CDiskHealthMainWin::updateDiskStatusInfo(int diskIndex)
 {
 	if(!m_pDiskMgr) return;
 	QVariantList infoList = m_pDiskMgr->getDiskStatusInfo(diskIndex);
-	if (!m_pDiskStatusTable) return;
+	if (!m_pDiskStatusInfoLayout) return;
 
-	// 总行数 = 键值对数量 * 2
-	m_pDiskStatusTable->setRowCount(infoList.size() * 2);
+	while (QLayoutItem* item = m_pDiskStatusInfoLayout->takeAt(0)) {
+		if (QWidget* widget = item->widget()) {
+			delete widget;         
+		}
+		
+		delete item;               
+	}
 
 	for (int i = 0; i < infoList.size(); ++i) {
 		QVariantMap item = infoList[i].toMap();
 		QString key = item["arg"].toString();
 		QString value = item["value"].toString();
+		CBPLabel *pKey = new CBPLabel(key);
+		pKey->setStyleSheet("font-family: \"Segoe UI\"; font-size: 14px; color: #6F7884;");
+		m_pDiskStatusInfoLayout->addWidget(pKey);
 
-		// 键行
-		QTableWidgetItem* keyItem = new QTableWidgetItem(key);
-		keyItem->setForeground(QColor("#6F7884"));
-		keyItem->setFont(QFont("SegoeUI", 14));        // 稍小字体
-		keyItem->setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-		// 可选：键行背景色
-		// keyItem->setBackground(QColor("#F0F0F0"));
-
-		// 值行
-		QTableWidgetItem* valueItem = new QTableWidgetItem(value);
-		valueItem->setForeground(QColor("#1F2C40"));
-		valueItem->setFont(QFont("SegoeUI", 14, QFont::Bold));
-		valueItem->setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-
-		int row = i * 2;
-		m_pDiskStatusTable->setItem(row, 0, keyItem);
-		m_pDiskStatusTable->setItem(row + 1, 0, valueItem);
+		CBPLabel* pValue = new CBPLabel(value);
+		pValue->setStyleSheet("font-family: \"Segoe UI\"; font-size: 14px; font-weight:600; color: #1F2C40;");
+		m_pDiskStatusInfoLayout->addWidget(pValue);
 	}
-
-	// 调整列宽：单列填满整个表格宽度
-	m_pDiskStatusTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
-	// 调整行高以适应内容
-	m_pDiskStatusTable->resizeRowsToContents();
 }
 
 void CDiskHealthMainWin::updateAttributeTable(int diskIndex)
@@ -375,15 +364,24 @@ void CDiskHealthMainWin::updateAttributeTable(int diskIndex)
 			pViewModel->setItem(row, 3, new QStandardItem(current.toString()));
 			pViewModel->setItem(row, 4, new QStandardItem(threshold.toString()));
 		}
+		m_pAtrriList->setRowHeight(row, 30);
 	}
 
 	// 设置模型到 QTableView
 	m_pAtrriList->setModel(pViewModel);
 
 	// 调整列宽和样式
+	m_pAtrriList->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
 	m_pAtrriList->resizeColumnToContents(0);
+	m_pAtrriList->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
 	m_pAtrriList->resizeColumnToContents(1);
-	m_pAtrriList->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+	m_pAtrriList->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+	m_pAtrriList->resizeColumnToContents(2);
+	m_pAtrriList->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
+	/*if (!rawMode)
+	{
+		m_pAtrriList->resizeColumnToContents(4);
+	}*/
 }
 
 
@@ -410,10 +408,10 @@ void CDiskHealthMainWin::InitDiskList()
 	} while (0);
 }
 
-void CDiskHealthMainWin::InitStatusWid(QBoxLayout* m_pStatusWid)
+void CDiskHealthMainWin::InitStatusWid(QBoxLayout* pStatusLay)
 {
 	do {
-		if (m_pStatusWid == nullptr) break;
+		if (pStatusLay == nullptr) break;
 		
 		QVBoxLayout* pLeft = new(std::nothrow) QVBoxLayout;
 		pLeft->setContentsMargins(5, 5, 5, 5);
@@ -421,25 +419,25 @@ void CDiskHealthMainWin::InitStatusWid(QBoxLayout* m_pStatusWid)
 
 		auto* pTitleLb = new (std::nothrow) CBPLabel;
 		pTitleLb->setText(tr("Status"));
+		pTitleLb->setStyleSheet("font-family: \"Segoe UI\"; font-size: 14px; color: #6F7884;");
 		m_pStatusText = new (std::nothrow) CBPLabel;
+
 		m_pHealthPersentTxt = new (std::nothrow) CBPLabel;
+		m_pHealthPersentTxt->setStyleSheet("font-family: \"Segoe UI\"; font-size: 14px; font-weight:600; color: #1F2C40;");
 
 		pLeft->addWidget(pTitleLb);
 		pLeft->addWidget(m_pStatusText);
 		pLeft->addWidget(m_pHealthPersentTxt);
 
-		//m_pStatusPix = new (std::nothrow) CBPLabel;
-		//m_pStatusPix->setFixedSize(48, 70);
-		m_pStatusWid->addLayout(pLeft);
-		//m_pStatusWid->addWidget(m_pStatusPix);
+		pStatusLay->addLayout(pLeft);
 	} while (0);
 
 }
 
-void CDiskHealthMainWin::InitTempWid(QBoxLayout* pTempWid)
+void CDiskHealthMainWin::InitTempWid(QBoxLayout* pTempLay)
 {
 	do {
-		if (pTempWid == nullptr) break;
+		if (pTempLay == nullptr) break;
 	
 		auto* pLeft = new(std::nothrow) QVBoxLayout;
 		pLeft->setContentsMargins(5, 5, 5, 5);
@@ -447,17 +445,16 @@ void CDiskHealthMainWin::InitTempWid(QBoxLayout* pTempWid)
 
 		auto* pTitleLb = new (std::nothrow) CBPLabel;
 		pTitleLb->setText(tr("Temperature"));
+		pTitleLb->setStyleSheet("font-family: \"Segoe UI\"; font-size: 14px; color: #6F7884;");
 		m_pTempTxt = new (std::nothrow) CBPLabel;
 		m_pTempStatusTxt = new (std::nothrow) CBPLabel;
+		m_pTempStatusTxt->setStyleSheet("font-family: \"Segoe UI\"; font-size: 14px; font-weight:600; color: #1F2C40;");
 
 		pLeft->addWidget(pTitleLb);
 		pLeft->addWidget(m_pTempTxt);
 		pLeft->addWidget(m_pTempStatusTxt);
 
-		//m_pTempPix = new (std::nothrow) CBPLabel;
-		//m_pTempPix->setFixedSize(48, 70);
-		pTempWid->addLayout(pLeft);
-		//pTempWid->addWidget(m_pTempPix);
+		pTempLay->addLayout(pLeft);
 
 	} while (0);
 }
@@ -467,7 +464,7 @@ void CDiskHealthMainWin::Init()
 {
 	do {
 		InitCommonWnd(true, 4, 0, 0);
-		SetMainBoxBorder(28, 18, 28, 20);
+		SetMainBoxBorder(18, 8, 18, 10);
 		InitTitle();
 		setFixedSize(848, 598);
 		setObjectName("CDiskHealthMainWin");
@@ -476,52 +473,67 @@ void CDiskHealthMainWin::Init()
 		m_pLeftLb = new(std::nothrow) CBPLabel;
 		m_pLeftLb->setWordWrap(true);
 		m_pLeftLb->setText(tr("Which disk do you care about?"));
-		//QWidget* pWidget, bool bExpand, quint32 uPadding, bool isHLayout, Qt::Alignment alignment)
+		m_pLeftLb->setStyleSheet("font-family: \"Segoe UI\"; font-size: 14px; font-weight:600; color: #1F2C40;");
 		AppendContentEx(m_pLeftLb, false, 0, false, Qt::AlignTop);
 		
-		m_pVBoxMain->addSpacing(10);
-		// 上
+		m_pVBoxMain->addSpacing(5);
 		m_pTopWid = new(std::nothrow) CBPBox(false);
 		m_pTopWid->SetSpacing(0);
 		m_pTopWid->setAttribute(Qt::WA_TranslucentBackground);
 	
 		m_pDiskList = new(std::nothrow) CBPComboBox;
 		m_pDiskList->setObjectName("DiskList");
-		m_pDiskList->setStyleSheet("#DiskList{border:2px solid #F4F2F7; background: #EBEEF2; border-radius: 4px;}");
+		m_pDiskList->setStyleSheet("#DiskList{border:2px solid #F4F2F7; background: #EBEEF2; border-radius: 4px; font-family: \"Segoe UI\"; font-size: 14px;}");
 
 
-		m_pTopWid->PackStart(m_pDiskList, false, false, 0);
+		m_pTopWid->PackStart(m_pDiskList, true, true, 0);
 		m_pTopWid->AddSpacing(8);
-		m_pRefreshBtn = new(std::nothrow) CBPPushBtn;
-		m_pRefreshBtn->setFixedSize(40, 24);
-		m_pTopWid->PackStart(m_pRefreshBtn, false, false, 0);
-		// 刷新
-		connect(m_pRefreshBtn, &CBPPushBtn::clicked, this, [this]() {
-			// todo 刷新处理
-			InitData();
-			});
+
+		m_pRefreshBtn = new(std::nothrow) QPushButton;
+
+		QString style = R"(
+			QPushButton {
+				background-image: url(:/res/icon_button_refresh_blue18.png);
+				background-repeat: no-repeat;
+				background-position: center;
+				background-color: #E0EAFC;    
+				border: 2px;    
+				border-radius: 6px;             
+			}
+
+			QPushButton:hover {
+				background-color: #C5D5F3;    
+				border: 2px;       
+			}
+			QPushButton:pressed {
+				background-color: #A6BDE6;    
+				border: 2px;         
+			}
+		)";
+
+		m_pRefreshBtn->setStyleSheet(style);
+
+		m_pRefreshBtn->setFixedSize(62, 38);
+		m_pTopWid->PackStart(m_pRefreshBtn, false, false);
 
 		AppendContentEx(m_pTopWid, false, 0, false, Qt::AlignTop);
 
-		m_pVBoxMain->addSpacing(18);
+		m_pVBoxMain->addSpacing(5);
 		
-		// 中间
 		auto pContentWid = new(std::nothrow) CBPBox(false);
 		pContentWid->SetSpacing(0);
 		pContentWid->setAttribute(Qt::WA_TranslucentBackground);
 
-		// 左
 		auto* pLeftWid = new (std::nothrow) CBPBox(true);
 		pLeftWid->setFixedWidth(286);
 		pLeftWid->SetSpacing(0);
 		pLeftWid->setAttribute(Qt::WA_TranslucentBackground);
 
-		// 左上
 		auto* pLeftTopWid = new (std::nothrow) CBPBox(false);
 		pLeftTopWid->SetSpacing(0);
 		pLeftTopWid->setAttribute(Qt::WA_TranslucentBackground);
 
-		// 状态控件
+		// 状态
 		m_pStatusWid = new (std::nothrow) QFrame;
 		m_pStatusWid->setFixedSize(140, 70);
 		QHBoxLayout* pStatusLayout = new (std::nothrow) QHBoxLayout(m_pStatusWid);
@@ -532,7 +544,7 @@ void CDiskHealthMainWin::Init()
 
 		pLeftTopWid->AddSpacing(5);
 
-		// 温度控件
+		// 温度
 		m_pTempWid = new (std::nothrow) QFrame;
 		m_pTempWid->setFixedSize(140, 70);
 		QHBoxLayout* pTempLayout = new (std::nothrow) QHBoxLayout(m_pTempWid);
@@ -541,41 +553,23 @@ void CDiskHealthMainWin::Init()
 		m_pTempWid->setObjectName("TempWid");
 		pLeftTopWid->PackStart(m_pTempWid, false, false, 0);
 
-		//m_pStatusWid->setStyleSheet("QFrame#StatusWid{background: #EBF5FF; border-radius: 4px;}");
-		//m_pTempWid->setStyleSheet("QFrame#StatusWid{background: #EBF5FF; border-radius: 4px;}");
-
 		InitStatusWid(pStatusLayout);
 		InitTempWid(pTempLayout);
 
-
-		// 左下
+		// 磁盘状态信息
 		m_pDiskStatusInfo = new (std::nothrow) QFrame;
-		m_pDiskStatusInfo->setObjectName("DiskStatusInfo");
-		//m_pDiskStatusInfo->setAttribute(Qt::WA_TranslucentBackground);
-		//m_pDiskStatusInfo->setMinimumHeight(442);
+		//m_pDiskStatusInfo->setMaximumHeight(440);
 		m_pDiskStatusInfo->setObjectName("DiskStatusInfo");
 		m_pDiskStatusInfo->setStyleSheet("QFrame#DiskStatusInfo{border:1px solid #F4F2F7; border-radius: 4px; background: #F2F4F7;}");
 
-		QVBoxLayout* pDiskStatusLayout = new (std::nothrow) QVBoxLayout(m_pDiskStatusInfo);
-
-		m_pDiskStatusTable = new (std::nothrow) CBPTableWidget;
-		m_pDiskStatusTable->setObjectName("DiskStatusTable");
-		pDiskStatusLayout->addWidget(m_pDiskStatusTable);
-		m_pDiskStatusTable->setColumnCount(1);
-		m_pDiskStatusTable->horizontalHeader()->setVisible(false);
-		m_pDiskStatusTable->verticalHeader()->setVisible(false);
-		m_pDiskStatusTable->setEditTriggers(QTableWidget::NoEditTriggers);
-		m_pDiskStatusTable->setShowGrid(false);
-		m_pDiskStatusTable->setAlternatingRowColors(false);
-		m_pDiskStatusTable->setStyleSheet("QTableWidget#DiskStatusTable{border:none; background: transparent;}");
+		m_pDiskStatusInfoLayout = new (std::nothrow) QVBoxLayout(m_pDiskStatusInfo);
 
 		pLeftWid->PackStart(pLeftTopWid);
-		pLeftWid->AddSpacing(18);
+		pLeftWid->AddSpacing(5);
 		pLeftWid->PackStart(m_pDiskStatusInfo);
 
-		// 右
+		// 属性列表
 		m_pAtrriList = new (std::nothrow) QTableView;
-		m_pAtrriList->setFixedHeight(407);
 		m_pAtrriList->setAlternatingRowColors(true);
 		m_pAtrriList->setShowGrid(false);
 		m_pAtrriList->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -585,23 +579,35 @@ void CDiskHealthMainWin::Init()
 		m_pAtrriList->setStyleSheet(
 			"QTableView { border:1px solid #F4F2F7; background: transparent; border-radius: 4px;}"
 			"QTableView::item {"
-			"   background-color: #F2F4F7;"              // 奇数行背景色
+			"   background-color: #F2F4F7;"
+			"   color:#1F2C40;"
+			"	font-family:\"Segoe UI\";"
+			"	font-size:14px;"
+			"   font-weight:600;"
 			"}"
 			"QTableView::item:alternate { background-color: #E6E9ED; }"
 			"QHeaderView::section {"
-			"   background-color: #E4EAF2;"              // 表头背景色
+			"   background-color: #E4EAF2;"              
 			"   border: none;"
 			"   padding: 4px;"
+			"   color:#6F7884;"
+			"	font-family:\"Segoe UI\";"
+			"	font-size: 14px;"
 			"}"
 		);
+
+		m_pAtrriList->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft| Qt::AlignVCenter);
+		m_pAtrriList->horizontalHeader()->setFixedHeight(30);   
+		
+		m_pAtrriList->setSelectionMode(QAbstractItemView::NoSelection);
 
 		pContentWid->PackStart(pLeftWid, true, false, 0);
 		pContentWid->AddSpacing(8);
 		pContentWid->PackStart(m_pAtrriList, true, false, 0);
 
-		AppendContentEx(pContentWid, true, false, 0);
+		AppendContentEx(pContentWid, false, false, 0);
 		
-		m_pVBoxMain->addSpacing(18);
+		m_pVBoxMain->addSpacing(5);
 
 		auto* pBottom = new (std::nothrow) CBPBox(false);
 		pBottom->SetSpacing(0);
@@ -617,7 +623,7 @@ void CDiskHealthMainWin::Init()
 		pDoBtn->setText(tr("Done"));
 		pBottom->PackStart(pDoBtn);
 		
-		AppendContentEx(pBottom, true, false, 0);
+		AppendContentEx(pBottom, false, false, 0);
 
 
 	} while (0);

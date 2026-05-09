@@ -61,23 +61,21 @@ private:
 	CBPLabel*			m_pLeftLb = nullptr;
 	CBPLabel*			m_pRightLb = nullptr;
 	CBPComboBox*		m_pDiskList = nullptr;
-	CBPPushBtn*			m_pRefreshBtn = nullptr;
+	QPushButton*		m_pRefreshBtn = nullptr;
 	CBPBox*				m_pTopWid = nullptr;
 	QFrame*				m_pDiskStatusInfo = nullptr;	
 	QTableView*			m_pAtrriList = nullptr;
 
 	CBPLabel*			m_pStatusText = nullptr;
 	CBPLabel*			m_pHealthPersentTxt = nullptr;
-	//CBPLabel*			m_pStatusPix = nullptr;
 	CBPLabel*			m_pTempTxt = nullptr;
 	CBPLabel*			m_pTempStatusTxt = nullptr;
-	//CBPLabel*			m_pTempPix = nullptr;
 	CBPCheckBox*		m_pAutoStartCheck = nullptr;
 
 	int					m_currentDiskIndex = -1;
 	bool				m_bFirstShow = true;
 
-	CBPTableWidget*		m_pDiskStatusTable = nullptr;
+	QVBoxLayout*		m_pDiskStatusInfoLayout = nullptr;
 	QFrame*				m_pTempWid = nullptr;
 	QFrame*				m_pStatusWid = nullptr;
 
