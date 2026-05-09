@@ -30,7 +30,7 @@ public:
 protected:
 	void showEvent(QShowEvent* event) override;
 
-private slots:
+public slots:
 	void onDiskSelected(int index);
 	void onRefreshClicked();
 	void onTemperatureClicked();
@@ -55,6 +55,11 @@ private:
 	void updateDiskStatusInfo(int diskIndex); // 左侧参数列表（Power On Hours etc.）
 	void updateAttributeTable(int diskIndex); // 右侧 SMART 属性表格
 	
+	void showLoading();
+	void hideLoading();
+
+	void updateAutoStartState();
+
 
 	DiskInfoMgr*		m_pDiskMgr = nullptr;
 
@@ -79,4 +84,29 @@ private:
 	QFrame*				m_pTempWid = nullptr;
 	QFrame*				m_pStatusWid = nullptr;
 
+	QFrame*				m_pLoadingOverlay = nullptr; // 刷新时的加载遮罩
+
+	CBPPushBtn*			m_pDoneBtn = nullptr;
+};
+
+// 温度卡片点击处理（独立事件过滤器）
+class TempWidgetClickFilter : public QObject
+{
+public:
+	TempWidgetClickFilter(CDiskHealthMainWin* win, QObject* parent = nullptr)
+		: QObject(parent), m_win(win) {
+	}
+
+protected:
+	bool eventFilter(QObject* watched, QEvent* event) override
+	{
+		if (event->type() == QEvent::MouseButtonPress) {
+			m_win->onTemperatureClicked();
+			return true;  // 事件已处理
+		}
+		return QObject::eventFilter(watched, event);
+	}
+
+private:
+	CDiskHealthMainWin* m_win;
 };

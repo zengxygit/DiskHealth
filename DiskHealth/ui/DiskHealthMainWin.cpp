@@ -35,12 +35,16 @@ void CDiskHealthMainWin::InitConnections()
 		this, &CDiskHealthMainWin::onDiskSelected);
 	// 刷新按钮
 	connect(m_pRefreshBtn, &CBPPushBtn::clicked, this, &CDiskHealthMainWin::onRefreshClicked);
-	// 温度卡片点击
-	//connect(m_pTempFrame, &QFrame::mousePressEvent, this, [this](QMouseEvent*) { onTemperatureClicked(); });
+
+	if (m_pTempWid) {
+		// 安装过滤器，并将过滤器对象的父对象设为 m_pTempWid，保证生命周期
+		m_pTempWid->installEventFilter(new TempWidgetClickFilter(this, m_pTempWid));
+		m_pTempWid->setCursor(Qt::PointingHandCursor);
+	}
 	// 自动启动复选框状态改变
 	connect(m_pAutoStartCheck, &CBPCheckBox::toggled, this, &CDiskHealthMainWin::onAutoStartToggled);
 	// 完成按钮
-	//connect(m_pDoneBtn, &CBPPushBtn::clicked, this, &CDiskHealthMainWin::onDoneClicked);
+	connect(m_pDoneBtn, &CBPPushBtn::clicked, this, &CDiskHealthMainWin::onDoneClicked);
 
 	// DiskInfoMgr 信号
 	connect(m_pDiskMgr, &DiskInfoMgr::sigDiskInfosChanged, this, &CDiskHealthMainWin::onDiskInfosChanged);
@@ -54,6 +58,8 @@ void CDiskHealthMainWin::InitConnections()
 	connect(m_pDiskMgr, &DiskInfoMgr::sigAboutRefresh, this, [this]() {
 		//setWaitingOverlayVisible(true);
 		});
+
+	
 }
 
 void CDiskHealthMainWin::showEvent(QShowEvent* event)
@@ -67,9 +73,58 @@ void CDiskHealthMainWin::showEvent(QShowEvent* event)
 		{
 			m_pDiskMgr->refreshDisks();
 		}
+
+		//// 设置自动启动复选框的状态
+		//updateAutoStartState();
 	}
 }
 
+void CDiskHealthMainWin::showLoading()
+{
+	if (!m_pLoadingOverlay) {
+		// 创建透明遮罩，作为主窗口的子控件
+		m_pLoadingOverlay = new QFrame(this);
+		m_pLoadingOverlay->setAttribute(Qt::WA_TranslucentBackground);
+		m_pLoadingOverlay->setStyleSheet("background:transparent; border:none;");
+		m_pLoadingOverlay->setGeometry(rect());
+
+		// 垂直+水平居中布局
+		QVBoxLayout* layout = new QVBoxLayout(m_pLoadingOverlay);
+		layout->setAlignment(Qt::AlignCenter);
+		layout->setContentsMargins(0, 0, 0, 0);
+
+		auto *waitLb = new CBPLabel(m_pLoadingOverlay);
+		waitLb->setAlignment(Qt::AlignCenter);
+		// 加载图片资源（请确保资源路径正确，根据实际项目可能为 ":/res/loading00.png"）
+		QPixmap pixmap(":/res/loading00.png");
+		if (!pixmap.isNull()) {
+			waitLb->setPixmap(pixmap);
+			waitLb->setScaledContents(false); // 保持原尺寸
+		}
+		
+		layout->addWidget(waitLb);
+
+		// 使遮罩拦截鼠标事件，避免刷新过程中用户误操作
+		m_pLoadingOverlay->setAttribute(Qt::WA_TransparentForMouseEvents, false);
+	}
+
+	// 确保遮罩尺寸与当前窗口一致
+	m_pLoadingOverlay->setGeometry(rect());
+	m_pLoadingOverlay->raise();
+	m_pLoadingOverlay->show();
+
+	// 改变光标为等待状态，提升用户体验
+	setCursor(Qt::WaitCursor);
+}
+
+void CDiskHealthMainWin::hideLoading()
+{
+	if (m_pLoadingOverlay) {
+		m_pLoadingOverlay->hide();
+	}
+	// 恢复光标
+	unsetCursor();
+}
 
 void CDiskHealthMainWin::onDiskSelected(int index)
 {
@@ -83,6 +138,7 @@ void CDiskHealthMainWin::onDiskSelected(int index)
 		if (status.isEmpty() || status["statusInfo"].toString().isEmpty()) {
 			// 避免在刷新线程运行时再次触发刷新
 			if (!m_pDiskMgr->isBusy())
+				showLoading();         
 				m_pDiskMgr->refreshDisks();
 		}
 	}
@@ -90,6 +146,7 @@ void CDiskHealthMainWin::onDiskSelected(int index)
 
 void CDiskHealthMainWin::onRefreshClicked()
 {
+	showLoading();
 	if (m_pDiskMgr)
 	{
 		m_pDiskMgr->clickRefresh();
@@ -126,7 +183,7 @@ void CDiskHealthMainWin::onDoneClicked()
 void CDiskHealthMainWin::onDiskInfosChanged()
 {
 	loadDiskList();         
-	// setWaitingOverlayVisible(false);
+	hideLoading();                     
 }
 
 void CDiskHealthMainWin::onLanguageChanged()
@@ -146,9 +203,9 @@ void CDiskHealthMainWin::onLanguageChanged()
 
 void CDiskHealthMainWin::onTempUnitChanged()
 {
-	//// 温度单位变化，刷新当前磁盘的温度显示
-	//if (m_currentDiskIndex >= 0)
-	//	updateStatusAndTemp(m_currentDiskIndex);
+	// 温度单位变化，刷新当前磁盘的温度显示
+	if (m_currentDiskIndex >= 0)
+		updateStatusAndTemp(m_currentDiskIndex);
 }
 
 void CDiskHealthMainWin::onSwitchToDisk(int diskIndex)
@@ -609,19 +666,34 @@ void CDiskHealthMainWin::Init()
 		
 		m_pVBoxMain->addSpacing(5);
 
-		auto* pBottom = new (std::nothrow) CBPBox(false);
-		pBottom->SetSpacing(0);
+		auto* pBottom = new (std::nothrow) QFrame;
+		QHBoxLayout* pBottomLayout = new (std::nothrow) QHBoxLayout(pBottom);
+		pBottomLayout->setSpacing(0);
+		pBottomLayout->setContentsMargins(0, 0, 0, 0);
 		pBottom->setAttribute(Qt::WA_TranslucentBackground);
 		
 		m_pAutoStartCheck = new CBPCheckBox;
-		m_pAutoStartCheck->setText(tr("Display alert when disk problems are found. (Ask for autostart boot)"));
-		pBottom->PackStart(m_pAutoStartCheck, true, false, 0);
-		pBottom->AddSpacerItem(true);
+		m_pAutoStartCheck->setText(" ");
+		pBottomLayout->addWidget(m_pAutoStartCheck);
 		
-		auto* pDoBtn = new(std::nothrow) CBPPushBtn;
-		pDoBtn->setFixedSize(130, 37);
-		pDoBtn->setText(tr("Done"));
-		pBottom->PackStart(pDoBtn);
+		auto* pLb = new CBPLabel;
+		// 富文本标签
+		pLb->setTextFormat(Qt::RichText); // 启用富文本
+		pLb->setText("Display alert when disk problems are found "
+			"(<font color='orange'>Ask for automatic boot</font>)");
+
+		//// 点击标签也能触发复选框状态
+		//connect(pLb, &CBPLabel::linkActivated, [=]() {
+		//	m_pAutoStartCheck->setChecked(!m_pAutoStartCheck->isChecked());
+		//	});
+
+		pBottomLayout->addWidget(pLb);
+		pBottomLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
+		
+		m_pDoneBtn = new(std::nothrow) CBPPushBtn;
+		m_pDoneBtn->setFixedSize(130, 37);
+		m_pDoneBtn->setText(tr("Done"));
+		pBottomLayout->addWidget(m_pDoneBtn);
 		
 		AppendContentEx(pBottom, false, false, 0);
 
@@ -657,4 +729,11 @@ void CDiskHealthMainWin::InitInfo()
 
 
 	} while (0);
+}
+
+void CDiskHealthMainWin::updateAutoStartState()
+{
+	if (!m_pDiskMgr || !m_pAutoStartCheck) return;
+	bool bAutoStart = m_pDiskMgr->isAutoStart();
+	m_pAutoStartCheck->setChecked(bAutoStart);
 }
