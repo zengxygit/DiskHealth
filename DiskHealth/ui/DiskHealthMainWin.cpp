@@ -466,7 +466,7 @@ void CDiskHealthMainWin::Init()
 		InitCommonWnd(true, 4, 0, 0);
 		SetMainBoxBorder(18, 8, 18, 10);
 		InitTitle();
-		setFixedSize(848, 598);
+		setFixedSize(848, 606);
 		setObjectName("CDiskHealthMainWin");
 		setStyleSheet("#CDiskHealthMainWin{border:2px solid #F4F2F7; background: #FFFFFF; border-radius: 4px;}");
 
