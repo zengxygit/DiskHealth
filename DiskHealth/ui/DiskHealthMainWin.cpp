@@ -74,6 +74,7 @@ void CDiskHealthMainWin::showEvent(QShowEvent* event)
 			m_pDiskMgr->refreshDisks();
 		}
 
+		retranslateUI();
 		//// 设置自动启动复选框的状态
 		//updateAutoStartState();
 	}
@@ -188,17 +189,7 @@ void CDiskHealthMainWin::onDiskInfosChanged()
 
 void CDiskHealthMainWin::onLanguageChanged()
 {
-	//// 重新翻译界面静态文本
-	//m_pLeftLb->setText(tr("Which disk do you care about?"));
-	//m_pStatusTitle->setText(tr("Status"));
-	//m_pTempTitle->setText(tr("Temperature"));
-	//m_pAutoStartCheck->setText(tr("Display alert when disk problems are found. (Ask for autostart boot)"));
-	//m_pDoneBtn->setText(tr("Done"));
-	//// 重新加载当前磁盘信息，因为 getDiskStatusInfo 会返回翻译后的文本
-	//if (m_currentDiskIndex >= 0)
-	//	updateDiskInfo(m_currentDiskIndex);
-	//// 刷新表格标题
-	//updateAttributeTable(m_currentDiskIndex);
+	retranslateUI();
 }
 
 void CDiskHealthMainWin::onTempUnitChanged()
@@ -454,6 +445,7 @@ void CDiskHealthMainWin::InitTitle()
 	SetTitleBg(QColor("#F4F2F7"));
 	ShowTitleBtn(Btn_Setting);
 	ShowTitleBtn(Btn_Close);
+	initLangList();
 
 }
 
@@ -474,15 +466,15 @@ void CDiskHealthMainWin::InitStatusWid(QBoxLayout* pStatusLay)
 		pLeft->setContentsMargins(5, 5, 5, 5);
 		pLeft->setSpacing(5);
 
-		auto* pTitleLb = new (std::nothrow) CBPLabel;
-		pTitleLb->setText(tr("Status"));
-		pTitleLb->setStyleSheet("font-family: \"Segoe UI\"; font-size: 14px; color: #6F7884;");
+		m_pStatusTitleLb = new (std::nothrow) CBPLabel;
+		m_pStatusTitleLb->setText(tr("Status"));
+		m_pStatusTitleLb->setStyleSheet("font-family: \"Segoe UI\"; font-size: 14px; color: #6F7884;");
 		m_pStatusText = new (std::nothrow) CBPLabel;
 
 		m_pHealthPersentTxt = new (std::nothrow) CBPLabel;
 		m_pHealthPersentTxt->setStyleSheet("font-family: \"Segoe UI\"; font-size: 14px; font-weight:600; color: #1F2C40;");
 
-		pLeft->addWidget(pTitleLb);
+		pLeft->addWidget(m_pStatusTitleLb);
 		pLeft->addWidget(m_pStatusText);
 		pLeft->addWidget(m_pHealthPersentTxt);
 
@@ -500,14 +492,14 @@ void CDiskHealthMainWin::InitTempWid(QBoxLayout* pTempLay)
 		pLeft->setContentsMargins(5, 5, 5, 5);
 		pLeft->setSpacing(5);
 
-		auto* pTitleLb = new (std::nothrow) CBPLabel;
-		pTitleLb->setText(tr("Temperature"));
-		pTitleLb->setStyleSheet("font-family: \"Segoe UI\"; font-size: 14px; color: #6F7884;");
+		m_pTempTitleLb = new (std::nothrow) CBPLabel;
+		m_pTempTitleLb->setText(tr("Temperature"));
+		m_pTempTitleLb->setStyleSheet("font-family: \"Segoe UI\"; font-size: 14px; color: #6F7884;");
 		m_pTempTxt = new (std::nothrow) CBPLabel;
 		m_pTempStatusTxt = new (std::nothrow) CBPLabel;
 		m_pTempStatusTxt->setStyleSheet("font-family: \"Segoe UI\"; font-size: 14px; font-weight:600; color: #1F2C40;");
 
-		pLeft->addWidget(pTitleLb);
+		pLeft->addWidget(m_pTempTitleLb);
 		pLeft->addWidget(m_pTempTxt);
 		pLeft->addWidget(m_pTempStatusTxt);
 
@@ -676,18 +668,13 @@ void CDiskHealthMainWin::Init()
 		m_pAutoStartCheck->setText(" ");
 		pBottomLayout->addWidget(m_pAutoStartCheck);
 		
-		auto* pLb = new CBPLabel;
+		m_pAutoStartLabel = new CBPLabel;
 		// 富文本标签
-		pLb->setTextFormat(Qt::RichText); // 启用富文本
-		pLb->setText("Display alert when disk problems are found "
+		m_pAutoStartLabel->setTextFormat(Qt::RichText); // 启用富文本
+		m_pAutoStartLabel->setText("Display alert when disk problems are found "
 			"(<font color='orange'>Ask for automatic boot</font>)");
 
-		//// 点击标签也能触发复选框状态
-		//connect(pLb, &CBPLabel::linkActivated, [=]() {
-		//	m_pAutoStartCheck->setChecked(!m_pAutoStartCheck->isChecked());
-		//	});
-
-		pBottomLayout->addWidget(pLb);
+		pBottomLayout->addWidget(m_pAutoStartLabel);
 		pBottomLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
 		
 		m_pDoneBtn = new(std::nothrow) CBPPushBtn;
@@ -736,4 +723,113 @@ void CDiskHealthMainWin::updateAutoStartState()
 	if (!m_pDiskMgr || !m_pAutoStartCheck) return;
 	bool bAutoStart = m_pDiskMgr->isAutoStart();
 	m_pAutoStartCheck->setChecked(bAutoStart);
+}
+
+void CDiskHealthMainWin::initLangList()
+{
+	if (!m_pWinTitle)
+	{
+		return;
+	}
+
+	QPushButton* pSettingBtn = m_pWinTitle->titleBtn(Btn_Setting); // 需要确认基类中实际的方法名
+	if (!pSettingBtn) 
+	{
+		pSettingBtn = this->findChild<QPushButton*>("settingBtn");
+	}
+
+	if (!pSettingBtn)
+	{
+		return;
+	}
+
+	// 创建菜单
+	m_langMenu = new(std::nothrow)QMenu(this);
+	m_langActionGroup = new(std::nothrow)QActionGroup(this);
+	m_langActionGroup->setExclusive(true);
+
+	QFont font = m_langMenu->font();
+	font.setFamily("Segoe UI");  // 或者 "Microsoft YaHei"，它们对韩文、日文支持较好
+	// 如果仍缺字，可以考虑使用 "Arial Unicode MS"（但体积较大）
+	m_langMenu->setFont(font);
+
+	// 语言列表（完整名称、显示名称、短代码）
+	QVector<QPair<QString, QPair<QString, QString>>> languages = {
+		{"Danish",      {"da-DK", u8"Dansk"}},
+		{"German",      {"de-DE", u8"Deutsch"}},
+		{"English",     {"en-US", u8"English"}},
+		{"Spanish",     {"es-ES", u8"Español"}},
+		{"French",      {"fr-FR", u8"Français"}},
+		{"Italian",     {"it-IT", u8"Italiano"}},
+		{"Dutch",       {"nl-NE", u8"Nederlands"}},
+		{"Polish",      {"pl-PL", u8"Polski"}},
+		{"Portuguese",  {"pt-BR", u8"Português"}},
+		{"Arabic",      {"ar-SA", u8"العربية"}},
+		{"Thai",        {"th-TH", u8"ไทย"}},
+		{"Japanese",    {"ja-JP", u8"日本語"}},
+		{"ChineseTrad", {"zh-TW", u8"繁體中文"}},
+		{"Korean",      {"ko-KR", u8"한국어"}}
+	};
+
+	for (const auto& lang : languages) {
+		const QString& fullName = lang.first;
+		const QString& displayName = lang.second.second;
+		QAction* action = m_langMenu->addAction(displayName);
+		action->setCheckable(true);
+		action->setData(fullName);   
+		m_langActionGroup->addAction(action);
+		connect(action, &QAction::triggered, this, [this, fullName]() {
+			if (m_pDiskMgr)
+				m_pDiskMgr->setCurrrentLanguage(fullName);
+			});
+	}
+
+	// 设置当前语言对应的菜单项选中
+	updateLanguageMenuCheck();
+
+	// 将菜单关联到设置按钮
+	pSettingBtn->setMenu(m_langMenu);
+}
+
+void CDiskHealthMainWin::onSettingButtonClicked() 
+{
+
+}
+
+void CDiskHealthMainWin::retranslateUI()
+{
+	SetTitleText(QObject::tr("EaseUS Disk Health"));  
+	if (m_pLeftLb)
+		m_pLeftLb->setText(tr("Which disk do you care about?"));
+	if (m_pStatusTitleLb)
+		m_pStatusTitleLb->setText(tr("Status"));
+	if (m_pTempTitleLb)
+		m_pTempTitleLb->setText(tr("Temperature"));
+	if (m_pAutoStartLabel) {
+		m_pAutoStartLabel->setText(tr("Display alert when disk problem are found. (%1)").arg(QString("< font color = 'orange' >") + tr("Ask for autostart boot") + QString("</font>")));
+	}
+	if (m_pDoneBtn)
+		m_pDoneBtn->setText(tr("Done"));
+
+	if (m_currentDiskIndex >= 0)
+		updateDiskStatusInfo(m_currentDiskIndex);
+
+	if (m_currentDiskIndex >= 0)
+		updateAttributeTable(m_currentDiskIndex);
+
+	loadDiskList();  // 会重新从 DiskInfoMgr 获取已经翻译好的条目
+
+	if (m_currentDiskIndex >= 0)
+		updateStatusAndTemp(m_currentDiskIndex);
+
+	updateLanguageMenuCheck();
+}
+
+void CDiskHealthMainWin::updateLanguageMenuCheck()
+{
+	if (!m_langMenu || !m_pDiskMgr) return;
+	QString currentLang = m_pDiskMgr->getCurrentLanguage();
+	for (QAction* action : m_langMenu->actions()) {
+		action->setChecked(action->data().toString() == currentLang);
+	}
 }

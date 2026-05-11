@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DiskHealth — 磁盘健康监测工具 帮助文档</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root {
+    --primary: #1976D2;
+    --primary-dark: #0D47A1;
+    --secondary: #37474F;
+    --accent: #00BCD4;
+    --good: #4CAF50;
+    --caution: #FF9800;
+    --bad: #F44336;
+    --bg: #F5F7FA;
+    --card-bg: #FFFFFF;
+    --text: #212121;
+    --text-light: #757575;
+    --border: #E0E0E0;
+    --code-bg: #263238;
+    --code-text: #ECEFF1;
+    --shadow: 0 2px 8px rgba(0,0,0,0.12);
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Segoe UI", "Microsoft YaHei", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  /* ── 顶栏 ── */
+  header {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 60%, var(--accent) 100%);
+    color: #fff;
+    padding: 40px 60px 30px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: "";
+    position: absolute; right: -80px; top: -80px;
+    width: 320px; height: 320px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 50%;
+  }
+  header .badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 12px;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+  header h1 { font-size: 2.6rem; font-weight: 700; letter-spacing: -1px; }
+  header p  { font-size: 1.05rem; opacity: 0.88; margin-top: 8px; max-width: 640px; }
+  header .meta { margin-top: 18px; font-size: 0.85rem; opacity: 0.7; }
+
+  /* ── 导航 ── */
+  nav {
+    background: var(--secondary);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    padding: 0 60px;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  }
+  nav a {
+    color: #CFD8DC;
+    text-decoration: none;
+    padding: 14px 18px;
+    font-size: 0.88rem;
+    transition: background 0.2s, color 0.2s;
+    border-bottom: 3px solid transparent;
+  }
+  nav a:hover, nav a.active {
+    color: #fff;
+    border-bottom-color: var(--accent);
+    background: rgba(255,255,255,0.06);
+  }
+
+  /* ── 内容容器 ── */
+  .container { max-width: 1180px; margin: 0 auto; padding: 40px 60px 80px; }
+
+  /* ── Section ── */
+  section { margin-bottom: 60px; }
+  section > h2 {
+    font-size: 1.65rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    border-left: 5px solid var(--accent);
+    padding-left: 14px;
+    margin-bottom: 24px;
+  }
+
+  /* ── 卡片 ── */
+  .card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 28px 32px;
+    margin-bottom: 24px;
+  }
+  .card h3 {
+    font-size: 1.1rem;
+    color: var(--secondary);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card h3 .icon {
+    width: 26px; height: 26px;
+    background: var(--primary);
+    border-radius: 6px;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 13px; flex-shrink: 0;
+  }
+
+  /* ── 概览网格 ── */
+  .overview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 18px;
+    margin-bottom: 28px;
+  }
+  .ov-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 22px 20px;
+    border-top: 4px solid var(--primary);
+    transition: transform 0.2s;
+  }
+  .ov-card:hover { transform: translateY(-3px); }
+  .ov-card .label { font-size: 0.8rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 1px; }
+  .ov-card .value { font-size: 1.55rem; font-weight: 700; color: var(--primary-dark); margin: 6px 0 4px; }
+  .ov-card .desc  { font-size: 0.85rem; color: var(--text-light); }
+
+  /* ── 架构图标签 ── */
+  .arch-layer {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .arch-box {
+    flex: 1; min-width: 160px;
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 0.88rem;
+  }
+  .layer-ui    { background: #E3F2FD; border: 2px solid #1976D2; }
+  .layer-mgr   { background: #E8F5E9; border: 2px solid #388E3C; }
+  .layer-data  { background: #FFF3E0; border: 2px solid #F57C00; }
+  .layer-hw    { background: #FCE4EC; border: 2px solid #C62828; }
+  .arch-box strong { display: block; margin-bottom: 6px; font-size: 0.95rem; }
+
+  /* ── 表格 ── */
+  .tbl-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+  th {
+    background: var(--primary);
+    color: #fff;
+    padding: 10px 14px;
+    text-align: left;
+  }
+  td { padding: 9px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #F5F5F5; }
+  .badge-good    { background: var(--good);    color:#fff; padding:2px 8px; border-radius:12px; font-size:0.78rem; }
+  .badge-caution { background: var(--caution); color:#fff; padding:2px 8px; border-radius:12px; font-size:0.78rem; }
+  .badge-bad     { background: var(--bad);     color:#fff; padding:2px 8px; border-radius:12px; font-size:0.78rem; }
+  .badge-info    { background: var(--primary); color:#fff; padding:2px 8px; border-radius:12px; font-size:0.78rem; }
+
+  /* ── Mermaid 图容器 ── */
+  .diagram-wrap {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 30px 20px;
+    margin: 20px 0;
+    overflow-x: auto;
+    text-align: center;
+  }
+  .diagram-wrap p.caption {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    margin-top: 14px;
+    font-style: italic;
+  }
+
+  /* ── 流程图说明 ── */
+  .flow-steps { counter-reset: step; display: grid; gap: 10px; }
+  .flow-step {
+    display: flex; align-items: flex-start; gap: 14px;
+    background: var(--card-bg); border-radius: 8px;
+    padding: 14px 18px; box-shadow: var(--shadow);
+  }
+  .flow-step::before {
+    counter-increment: step;
+    content: counter(step);
+    min-width: 30px; height: 30px;
+    background: var(--primary); color: #fff;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.85rem; flex-shrink: 0;
+  }
+  .flow-step strong { display: block; margin-bottom: 4px; }
+
+  /* ── 代码块 ── */
+  pre {
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 18px 22px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    margin: 12px 0;
+  }
+  code { font-family: "Consolas", "Cascadia Code", monospace; }
+
+  /* ── 状态指示灯 ── */
+  .status-demo {
+    display: flex; gap: 18px; flex-wrap: wrap; margin-top: 14px;
+  }
+  .status-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 18px; border-radius: 8px;
+    font-weight: 600; font-size: 0.92rem;
+  }
+  .status-good    { background: #E8F5E9; color: #2E7D32; }
+  .status-caution { background: #FFF8E1; color: #E65100; }
+  .status-bad     { background: #FFEBEE; color: #B71C1C; }
+  .status-dot { width: 14px; height: 14px; border-radius: 50%; }
+  .dot-good    { background: var(--good); }
+  .dot-caution { background: var(--caution); }
+  .dot-bad     { background: var(--bad); }
+
+  /* ── 信号槽图例 ── */
+  .sig-table td:first-child { font-family: monospace; color: var(--primary-dark); font-size: 0.82rem; }
+
+  /* ── 页脚 ── */
+  footer {
+    background: var(--secondary);
+    color: #90A4AE;
+    text-align: center;
+    padding: 24px;
+    font-size: 0.85rem;
+    margin-top: 40px;
+  }
+
+  /* ── 标注块 ── */
+  .note {
+    background: #E3F2FD;
+    border-left: 4px solid var(--primary);
+    padding: 12px 18px;
+    border-radius: 0 8px 8px 0;
+    font-size: 0.9rem;
+    margin: 14px 0;
+  }
+  .note.warn { background: #FFF3E0; border-color: var(--caution); }
+  .note.tip  { background: #E8F5E9; border-color: var(--good); }
+
+  /* ── 响应式 ── */
+  @media (max-width: 768px) {
+    header, .container { padding-left: 20px; padding-right: 20px; }
+    nav { padding: 0 20px; }
+    header h1 { font-size: 1.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════ 顶栏 ════════════ -->
+<header>
+  <div class="badge">技术帮助文档 · v1.0</div>
+  <h1>💾 DiskHealth</h1>
+  <p>基于 Qt / C++ 的磁盘健康监测工具——实时读取 S.M.A.R.T 数据，评估磁盘健康状态，支持 HDD / SSD / NVMe 全设备类型。</p>
+  <div class="meta">平台：Windows 10/11 &nbsp;|&nbsp; 框架：Qt 5.x / C++17 &nbsp;|&nbsp; 协议：ATA / SCSI / NVMe &nbsp;|&nbsp; 文档日期：2026-05-09</div>
+</header>
+
+<!-- ════════════ 导航 ════════════ -->
+<nav>
+  <a href="#overview">概述</a>
+  <a href="#architecture">架构</a>
+  <a href="#classes">类图</a>
+  <a href="#sequence">时序图</a>
+  <a href="#smart">SMART属性</a>
+  <a href="#signals">信号与槽</a>
+  <a href="#flow">业务流程</a>
+  <a href="#disk-types">设备支持</a>
+  <a href="#faq">常见问题</a>
+</nav>
+
+<!-- ════════════ 主内容 ════════════ -->
+<div class="container">
+
+<!-- ══ 1. 概述 ══ -->
+<section id="overview">
+  <h2>📋 功能概述</h2>
+
+  <div class="overview-grid">
+    <div class="ov-card">
+      <div class="label">最大磁盘数</div>
+      <div class="value">64</div>
+      <div class="desc">单次枚举最多 64 块物理磁盘</div>
+    </div>
+    <div class="ov-card">
+      <div class="label">SMART 属性</div>
+      <div class="value">30</div>
+      <div class="desc">每块磁盘最多解析 30 个 SMART 属性</div>
+    </div>
+    <div class="ov-card">
+      <div class="label">厂商支持</div>
+      <div class="value">30+</div>
+      <div class="desc">覆盖 Intel / Samsung / WDC / Seagate 等主流品牌</div>
+    </div>
+    <div class="ov-card">
+      <div class="label">接口协议</div>
+      <div class="value">7 种</div>
+      <div class="desc">PATA / SATA / USB / SCSI / IEEE1394 / NVMe / USB-NVMe</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="icon">✦</span> 核心功能</h3>
+    <ul style="padding-left:20px; line-height:2.1">
+      <li><b>磁盘健康评估</b>：综合 SMART 属性判断磁盘处于 Good / Caution / Bad 三级状态</li>
+      <li><b>温度监控</b>：实时显示磁盘温度，支持摄氏度 / 华氏度切换，SSD 警戒阈值 60°C，HDD 50°C</li>
+      <li><b>SMART 属性列表</b>：展示完整属性 ID、名称、当前值、最差值、阈值及 Raw 值</li>
+      <li><b>多磁盘切换</b>：ComboBox 快速在多块磁盘间切换查看详情</li>
+      <li><b>系统托盘</b>：后台常驻，悬停托盘图标可浮出状态摘要</li>
+      <li><b>开机自启</b>：注册表写入自启项，静默后台监测</li>
+      <li><b>多语言</b>：内置多语言翻译框架，动态切换界面语言</li>
+      <li><b>EPM 集成</b>：支持与 EaseUS Partition Master 联动，接收进程间消息</li>
+      <li><b>数据上报</b>：可选阿里云日志服务（AliyunLog）记录用户行为</li>
+    </ul>
+  </div>
+
+  <div class="status-demo">
+    <div class="status-item status-good">
+      <div class="status-dot dot-good"></div>Good — 健康
+    </div>
+    <div class="status-item status-caution">
+      <div class="status-dot dot-caution"></div>Caution — 注意
+    </div>
+    <div class="status-item status-bad">
+      <div class="status-dot dot-bad"></div>Bad — 危险
+    </div>
+  </div>
+</section>
+
+<!-- ══ 2. 架构 ══ -->
+<section id="architecture">
+  <h2>🏗️ 系统架构</h2>
+
+  <div class="card">
+    <h3><span class="icon">▤</span> 分层架构概览</h3>
+    <p style="margin-bottom:16px; color:var(--text-light)">DiskHealth 采用经典的 四层 MVC 变体架构，各层职责清晰，通过 Qt 信号/槽解耦。</p>
+
+    <div class="arch-layer">
+      <div class="arch-box layer-ui">
+        <strong>🖥️ 表现层 (UI Layer)</strong>
+        <code>CDiskHealthMainWin</code> — 主窗口<br>
+        <code>CTrayIcon</code> — 系统托盘<br>
+        <code>AttrModel</code> — SMART 属性列表视图模型
+      </div>
+      <div class="arch-box layer-mgr">
+        <strong>🧠 管理层 (Manager Layer)</strong>
+        <code>DiskInfoMgr</code> — 核心业务管理器<br>
+        <code>RefreshThread</code> — 后台刷新线程<br>
+        多语言 / 注册表 / EPM 通信
+      </div>
+      <div class="arch-box layer-data">
+        <strong>📊 数据层 (Data Layer)</strong>
+        <code>CAtaSmart</code> — SMART 数据读取与解析<br>
+        <code>ATA_SMART_INFO</code> — 磁盘信息结构体<br>
+        <code>loadDiskAttrs()</code> — 属性名称映射表
+      </div>
+      <div class="arch-box layer-hw">
+        <strong>⚙️ 硬件抽象层 (HAL)</strong>
+        IOCTL / SCSI Miniport / NVMe StorageQuery<br>
+        WMI / SAT / CSMI / MegaRAID<br>
+        <code>SlotSpeedGetter</code> / <code>NVMeInterpreter</code>
+      </div>
+    </div>
+    <div class="note">
+      <b>关键设计决策：</b>磁盘枚举与 SMART 读取全部在 <code>RefreshThread</code> 异步执行，避免阻塞 UI 线程。刷新完成后通过 <code>sigDiskInfosChanged</code> 信号通知主窗口更新。
+    </div>
+  </div>
+
+  <div class="diagram-wrap">
+    <div class="mermaid">
+graph TB
+  subgraph UI["🖥️ 表现层"]
+    W["CDiskHealthMainWin\n主窗口"]
+    T["CTrayIcon\n系统托盘"]
+    AM["AttrModel\nSMART表格模型"]
+  end
+  subgraph MGR["🧠 管理层"]
+    DIM["DiskInfoMgr\n核心管理器"]
+    RT["RefreshThread\n后台刷新线程"]
+  end
+  subgraph DATA["📊 数据/协议层"]
+    ATA["CAtaSmart\nSMART读取引擎"]
+    NI["NVMeInterpreter\nNVMe解析"]
+    SSG["SlotSpeedGetter\n接口速度"]
+    DA["loadDiskAttrs()\n属性名称表"]
+  end
+  subgraph HW["⚙️ 系统调用"]
+    IO["DeviceIoControl\nIoctl/Ata/NVMe"]
+    WMI["WMI接口"]
+    SCSI["SCSI Miniport"]
+  end
+
+  W <-->|"信号/槽"| DIM
+  T -->|"sigShowFrame/sigExit"| DIM
+  DIM -->|"m_model"| AM
+  AM -->|"QAbstractItemModel"| W
+  DIM -->|"启动线程"| RT
+  RT -->|"调用"| ATA
+  ATA --> NI
+  ATA --> SSG
+  ATA --> DA
+  ATA -->|"DeviceIoControl"| IO
+  ATA -->|"WMI查询"| WMI
+  ATA -->|"SCSI命令"| SCSI
+    </div>
+    <p class="caption">图 1：DiskHealth 系统架构图</p>
+  </div>
+</section>
+
+<!-- ══ 3. 类图 ══ -->
+<section id="classes">
+  <h2>🧩 类图</h2>
+
+  <div class="diagram-wrap">
+    <div class="mermaid">
+classDiagram
+  direction TB
+
+  class DiskInfoMgr {
+    +QVariantList m_listDiskInfos
+    +CAtaSmart m_Ata
+    +AttrModel m_model
+    +CTrayIcon* m_tray
+    +RefreshThread m_refreshThread
+    +QTimer m_pCPUTimer
+    +QLocalSocket m_socket
+    +CDiskHealthMainWin* m_pMainWin
+    -bool m_bAutoStart
+    -int m_iFirstCautionDisk
+    +loadInfo()
+    +getDiskInfos() QVariantList
+    +getDiskStatus(index) QVariantMap
+    +getDiskStatusInfo(index) QVariantList
+    +refreshDisks()
+    +selectDisk(index)
+    +setIsTempF(v)
+    +isTempF() bool
+    +doDone(check) bool
+    +setCurrrentLanguage(lang)
+    +initMultiLanguage()
+    +checkHasSmartError(index) bool
+    #nativeEventFilter() bool
+    sigDiskInfosChanged()
+    sigLanguageChanged()
+    sigIsTempFchanged()
+    sigSwitchDiskIndex()
+    sigAboutRefresh()
+  }
+
+  class RefreshThread {
+    -DiskInfoMgr* m_mgr
+    +run()
+  }
+
+  class CDiskHealthMainWin {
+    -DiskInfoMgr* m_pDiskMgr
+    -CBPComboBox* m_pDiskList
+    -CBPLabel* m_pStatusText
+    -CBPLabel* m_pTempTxt
+    -QTableView* m_pAtrriList
+    -CBPCheckBox* m_pAutoStartCheck
+    -int m_currentDiskIndex
+    +onDiskInfosChanged()
+    +onLanguageChanged()
+    +onTempUnitChanged()
+    +onSwitchToDisk(index)
+    -loadDiskList()
+    -updateDiskInfo(index)
+    -updateStatusAndTemp(index)
+    -updateDiskStatusInfo(index)
+    -updateAttributeTable(index)
+    -InitConnections()
+  }
+
+  class AttrModel {
+    -DiskInfoMgr* m_pMgr
+    +rowCount() int
+    +columnCount() int
+    +data(index, role) QVariant
+    +roleNames() QHash
+    +reset()
+  }
+
+  class CTrayIcon {
+    -QTimer* m_pLeaveTimer
+    -QRect m_IconRect
+    -QMenu* m_menu
+    +OnActivate()
+    +StarListen()
+    +CheckMouse()
+    +inPos(pt) bool
+    +onCreateIcon()
+    #nativeEventFilter() bool
+    sigExit()
+    sigShowFrame()
+    sigHoverEnter(x,y)
+    sigHoverLeave()
+  }
+
+  class CAtaSmart {
+    +int MAX_DISK = 64
+    +int MAX_ATTRIBUTE = 30
+    +ATA_SMART_INFO vars[]
+    +BOOL FlagUsbSat
+    +BOOL FlagMegaRAID
+    +Init(flags...)
+    +UpdateSmartInfo(i) DWORD
+    +GetSmartAttributeNVMeStorageQuery(...)
+    +GetSmartAttributeNVMeIntel(...)
+  }
+
+  class NVMeInterpreter {
+    +NVMeSmartToATASmart(buf, out)
+  }
+
+  class SlotSpeedGetter {
+    +GetSlotSpeed(...) DWORD
+  }
+
+  class ATA_SMART_INFO {
+    +TCHAR Model[...]
+    +TCHAR SerialNumber[...]
+    +DWORD Temperature
+    +BOOL IsSsd
+    +DISK_STATUS DiskStatus
+    +SMART_ATTRIBUTE Attribute[]
+    +int AttributeCount
+    +int PhysicalDriveId
+    +VENDOR_ID DiskVendorId
+    +DWORD PowerOnRawValue
+  }
+
+  DiskInfoMgr "1" *-- "1" RefreshThread : 包含
+  DiskInfoMgr "1" *-- "1" AttrModel : 包含
+  DiskInfoMgr "1" o-- "0..1" CTrayIcon : 可选
+  DiskInfoMgr "1" *-- "1" CAtaSmart : 包含
+  DiskInfoMgr --> CDiskHealthMainWin : 持有指针
+  CDiskHealthMainWin --> DiskInfoMgr : 持有指针
+  AttrModel --> DiskInfoMgr : 反向引用
+  CAtaSmart --> NVMeInterpreter : 使用
+  CAtaSmart --> SlotSpeedGetter : 使用
+  CAtaSmart "1" *-- "64" ATA_SMART_INFO : vars数组
+    </div>
+    <p class="caption">图 2：DiskHealth 完整类图（核心模块）</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="icon">📌</span> 核心类职责说明</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>类名</th><th>基类</th><th>核心职责</th><th>线程</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>DiskInfoMgr</code></td>
+            <td>QObject, QAbstractNativeEventFilter</td>
+            <td>全局业务控制器：协调 SMART 读取、UI 更新、托盘、多语言、EPM 通信</td>
+            <td><span class="badge-info">主线程</span></td>
+          </tr>
+          <tr>
+            <td><code>RefreshThread</code></td>
+            <td>QThread</td>
+            <td>在工作线程中调用 <code>DiskInfoMgr::loadInfo()</code> 避免 UI 卡顿</td>
+            <td><span class="badge-caution">工作线程</span></td>
+          </tr>
+          <tr>
+            <td><code>CDiskHealthMainWin</code></td>
+            <td>CBPWinFrm (QWidget)</td>
+            <td>主窗口 UI：磁盘列表、状态/温度面板、SMART 属性表格</td>
+            <td><span class="badge-info">主线程</span></td>
+          </tr>
+          <tr>
+            <td><code>AttrModel</code></td>
+            <td>QAbstractItemModel</td>
+            <td>为 QTableView 提供 SMART 属性数据（MVC Model 角色）</td>
+            <td><span class="badge-info">主线程</span></td>
+          </tr>
+          <tr>
+            <td><code>CTrayIcon</code></td>
+            <td>QObject, QAbstractNativeEventFilter</td>
+            <td>系统托盘图标：Shell_NotifyIcon 注册、右键菜单、鼠标悬停检测</td>
+            <td><span class="badge-info">主线程</span></td>
+          </tr>
+          <tr>
+            <td><code>CAtaSmart</code></td>
+            <td>—</td>
+            <td>SMART 核心引擎：枚举物理磁盘、发送 IOCTL 命令、解析 SMART 数据</td>
+            <td><span class="badge-caution">工作线程</span></td>
+          </tr>
+          <tr>
+            <td><code>NVMeInterpreter</code></td>
+            <td>—</td>
+            <td>将 NVMe SMART 日志（原始字节）转换为 ATA SMART 属性格式</td>
+            <td><span class="badge-caution">工作线程</span></td>
+          </tr>
+          <tr>
+            <td><code>SlotSpeedGetter</code></td>
+            <td>—</td>
+            <td>获取 PCIe / SATA 插槽协商速率（用于 UI 显示接口信息）</td>
+            <td><span class="badge-caution">工作线程</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 4. 时序图 ══ -->
+<section id="sequence">
+  <h2>⏱️ 时序图</h2>
+
+  <!-- 启动时序 -->
+  <div class="card">
+    <h3><span class="icon">▶</span> 4.1 应用启动时序</h3>
+  </div>
+  <div class="diagram-wrap">
+    <div class="mermaid">
+sequenceDiagram
+  autonumber
+  participant Main as main()
+  participant App as QApplication
+  participant DIM as DiskInfoMgr
+  participant Win as CDiskHealthMainWin
+  participant Tray as CTrayIcon
+  participant RT as RefreshThread
+  participant ATA as CAtaSmart
+
+  Main->>App: 创建 QApplication
+  Main->>DIM: new DiskInfoMgr()
+  DIM->>DIM: parseArgs() 解析命令行
+  DIM->>DIM: 读取注册表配置(TempF/ShowIcon)
+  alt showIcon==true
+    DIM->>Tray: new CTrayIcon(this)
+    Tray-->>DIM: 连接 sigHoverEnter/Leave/ShowFrame/Exit
+  end
+  DIM->>DIM: 连接 m_refreshThread::finished → sigDiskInfosChanged
+  Main->>Win: new CDiskHealthMainWin(&dim)
+  Win->>Win: Init() 创建控件布局
+  Win->>Win: InitConnections() 绑定信号槽
+  Win->>DIM: InitData() → 调用 refreshDisks()
+  DIM->>RT: start() 启动刷新线程
+  RT->>DIM: run() → loadInfo()
+  DIM->>ATA: Init(TRUE, FALSE, ...)
+  ATA->>ATA: 枚举物理磁盘(PhysicalDrive0~55)
+  ATA->>ATA: 枚举 SCSI 端口
+  ATA->>ATA: 读取 SMART 数据(IOCTL/NVMe/WMI)
+  ATA-->>DIM: vars[] 填充完毕
+  DIM->>DIM: UpdateSmartInfo() × N
+  DIM->>DIM: resetDiskList() 生成 m_listDiskInfos
+  RT-->>DIM: finished 信号
+  DIM->>Win: emit sigDiskInfosChanged()
+  Win->>Win: onDiskInfosChanged()
+  Win->>Win: loadDiskList() 刷新 ComboBox
+  Win->>Win: updateDiskInfo(0) 显示第一块磁盘
+  Main->>Win: show()
+    </div>
+    <p class="caption">图 3：应用启动与磁盘数据加载时序图</p>
+  </div>
+
+  <!-- 切盘时序 -->
+  <div class="card">
+    <h3><span class="icon">🔄</span> 4.2 用户切换磁盘时序</h3>
+  </div>
+  <div class="diagram-wrap">
+    <div class="mermaid">
+sequenceDiagram
+  autonumber
+  participant User as 用户
+  participant Win as CDiskHealthMainWin
+  participant DIM as DiskInfoMgr
+  participant AM as AttrModel
+
+  User->>Win: 在 ComboBox 选择磁盘 N
+  Win->>Win: onDiskSelected(N)
+  Win->>Win: updateDiskInfo(N)
+  Win->>DIM: getDiskStatus(N)
+  DIM-->>Win: {status, healthPercent, temp, ...}
+  Win->>Win: updateStatusAndTemp(N) 刷新健康度/温度
+  Win->>DIM: getDiskStatusInfo(N)
+  DIM-->>Win: [{iconId, attrName, curValue, raw, ...}]
+  Win->>Win: updateDiskStatusInfo(N) 刷新左侧信息卡片
+  Win->>AM: reset() 重置模型
+  Win->>Win: updateAttributeTable(N) 设置 TableView 模型
+  AM->>DIM: data(index, role) 按需读取 SMART 属性
+  DIM-->>AM: 返回属性值
+  AM-->>Win: 渲染 SMART 属性列表
+  Win->>DIM: selectDisk(N) 记录当前索引
+  alt 数据为空且非忙
+    Win->>DIM: refreshDisks() 触发后台刷新
+  end
+    </div>
+    <p class="caption">图 4：用户切换磁盘查看详情的时序图</p>
+  </div>
+
+  <!-- 托盘时序 -->
+  <div class="card">
+    <h3><span class="icon">🔔</span> 4.3 托盘图标交互时序</h3>
+  </div>
+  <div class="diagram-wrap">
+    <div class="mermaid">
+sequenceDiagram
+  autonumber
+  participant OS as Windows 系统
+  participant Tray as CTrayIcon
+  participant DIM as DiskInfoMgr
+  participant Win as CDiskHealthMainWin
+
+  OS->>Tray: WM_TRAYNOTIFY (鼠标悬停)
+  Tray->>Tray: nativeEventFilter() 处理消息
+  Tray->>Tray: m_pLeaveTimer->start() 启动离开检测
+  Tray->>DIM: emit sigHoverEnter(x, y)
+  DIM->>DIM: doHoverEnter(x, y)
+  DIM->>Win: 显示悬浮摘要窗口
+
+  OS->>Tray: WM_TRAYNOTIFY (鼠标离开)
+  Tray->>Tray: CheckMouse() 确认鼠标已离开托盘区域
+  Tray->>DIM: emit sigHoverLeave()
+  DIM->>Win: hoverLeave() 隐藏摘要窗口
+
+  OS->>Tray: WM_TRAYNOTIFY (双击 / 右键菜单 Show)
+  Tray->>DIM: emit sigShowFrame()
+  DIM->>DIM: showFrame()
+  DIM->>Win: show() / raise()
+
+  OS->>Tray: 右键菜单 Exit
+  Tray->>DIM: emit sigExit()
+  DIM->>Win: 关闭窗口并退出
+    </div>
+    <p class="caption">图 5：系统托盘图标交互时序图</p>
+  </div>
+
+  <!-- 刷新时序 -->
+  <div class="card">
+    <h3><span class="icon">♻️</span> 4.4 手动刷新磁盘数据时序</h3>
+  </div>
+  <div class="diagram-wrap">
+    <div class="mermaid">
+sequenceDiagram
+  autonumber
+  participant User as 用户
+  participant Win as CDiskHealthMainWin
+  participant DIM as DiskInfoMgr
+  participant RT as RefreshThread
+  participant ATA as CAtaSmart
+
+  User->>Win: 点击刷新按钮
+  Win->>DIM: clickRefresh()
+  Win->>DIM: refreshDisks()
+  DIM->>RT: start() (若未在运行)
+  Note over RT,ATA: 后台工作线程
+  RT->>DIM: loadInfo()
+  DIM->>ATA: Init(TRUE, ...)
+  ATA->>ATA: 重新枚举所有磁盘
+  ATA->>ATA: 读取 SMART 数据
+  ATA-->>DIM: vars[] 更新
+  DIM->>DIM: UpdateSmartInfo() 更新各磁盘健康状态
+  DIM->>DIM: resetDiskList() 重建磁盘列表
+  RT-->>DIM: finished 信号
+  DIM->>Win: emit sigDiskInfosChanged()
+  Win->>Win: onDiskInfosChanged()
+  Win->>Win: loadDiskList() 刷新列表
+  Win->>Win: updateDiskInfo(currentIndex)
+    </div>
+    <p class="caption">图 6：手动刷新磁盘数据时序图</p>
+  </div>
+</section>
+
+<!-- ══ 5. SMART属性 ══ -->
+<section id="smart">
+  <h2>📊 S.M.A.R.T 属性详解</h2>
+
+  <div class="card">
+    <h3><span class="icon">ℹ</span> 什么是 S.M.A.R.T？</h3>
+    <p>S.M.A.R.T（Self-Monitoring, Analysis and Reporting Technology，自我监测分析与报告技术）是内置于现代 ATA/SATA/NVMe 硬盘的监控系统，通过一系列属性值反映磁盘的运行状态，可提前预警潜在故障。</p>
+    <div class="note tip">
+      <b>健康判断规则：</b>当 <code>CurrentValue ≤ Threshold</code> 时，该属性触发警告，DiskHealth 将根据关键属性（05h / C5h / C6h）的触发情况将磁盘状态从 Good 升级为 Caution 或 Bad。
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="icon">📋</span> 关键 SMART 属性说明</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>属性 ID</th><th>属性名称</th><th>重要性</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>0x01 (01h)</code></td><td>Read Error Rate</td><td><span class="badge-bad">关键</span></td><td>从磁盘表面读取数据时的错误率，值过低表示磁盘表面可能有损伤</td></tr>
+          <tr><td><code>0x05 (05h)</code></td><td>Reallocated Sectors Count</td><td><span class="badge-bad">关键</span></td><td>已重新分配的扇区数量，即"坏扇区"数，非零值需立即关注。<b>DiskHealth 阈值：1</b></td></tr>
+          <tr><td><code>0x07 (07h)</code></td><td>Seek Error Rate</td><td><span class="badge-caution">重要</span></td><td>磁头寻道错误率，高值表示机械部件可能有问题（HDD 专属）</td></tr>
+          <tr><td><code>0x09 (09h)</code></td><td>Power-On Hours</td><td><span class="badge-info">信息</span></td><td>通电总小时数，不同厂商单位可能为分钟、半分钟或秒</td></tr>
+          <tr><td><code>0x0C (0Ch)</code></td><td>Power Cycle Count</td><td><span class="badge-info">信息</span></td><td>开关机次数，用于评估磁盘使用历史</td></tr>
+          <tr><td><code>0xBB (BBh)</code></td><td>Reported Uncorrectable Errors</td><td><span class="badge-bad">关键</span></td><td>无法纠正的错误数，非零值表示数据丢失风险极高</td></tr>
+          <tr><td><code>0xC2 (C2h)</code></td><td>Temperature</td><td><span class="badge-caution">重要</span></td><td>当前温度（°C），SSD 超过 60°C / HDD 超过 50°C 触发警告</td></tr>
+          <tr><td><code>0xC5 (C5h)</code></td><td>Current Pending Sector Count</td><td><span class="badge-bad">关键</span></td><td>等待重新分配的不稳定扇区数。<b>DiskHealth 阈值：1</b></td></tr>
+          <tr><td><code>0xC6 (C6h)</code></td><td>Uncorrectable Sector Count</td><td><span class="badge-bad">关键</span></td><td>无法纠正的扇区数。<b>DiskHealth 阈值：1</b></td></tr>
+          <tr><td><code>0xE7 (E7h)</code></td><td>SSD Life Left / Temperature</td><td><span class="badge-caution">重要</span></td><td>SSD 剩余寿命百分比（部分厂商）或温度（东芝 SSD）</td></tr>
+          <tr><td><code>0xF1 (F1h)</code></td><td>Total Host Writes</td><td><span class="badge-info">信息</span></td><td>主机总写入量，单位因厂商而异（512B / 1MB / 32MB / GB）</td></tr>
+          <tr><td><code>0xF2 (F2h)</code></td><td>Total Host Reads</td><td><span class="badge-info">信息</span></td><td>主机总读取量，用于评估 SSD 使用寿命</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="icon">🏭</span> 厂商专属属性处理</h3>
+    <p style="margin-bottom:12px">DiskHealth 针对不同厂商实现了独立的属性解析逻辑，确保属性含义的准确性：</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>厂商标识</th><th>处理模块</th><th>特殊处理</th></tr></thead>
+        <tbody>
+          <tr><td>Samsung</td><td>SmartSamsung</td><td>0xB4h(保留块数)、0xB5h(程序失败块)等三星独有属性</td></tr>
+          <tr><td>Intel</td><td>SmartIntel</td><td>0xE8h(可用保留空间)、0xE9h(媒体磨损指示)</td></tr>
+          <tr><td>WDC</td><td>SmartWdc</td><td>0x07h(UDMA CRC错误)特殊解读</td></tr>
+          <tr><td>NVMe (通用)</td><td>SmartNVMe</td><td>NVMeSmartToATASmart() 将 NVMe 日志转为 ATA 属性格式</td></tr>
+          <tr><td>Kingston</td><td>SmartKingston</td><td>0xBBh(初始错误块)、0xA8h(初始坏块)</td></tr>
+          <tr><td>YMTC (长江存储)</td><td>SmartYmtc</td><td>国产存储特殊属性映射</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="diagram-wrap">
+    <div class="mermaid">
+flowchart TD
+  A["读取原始 SMART 数据\n(IOCTL/NVMe/WMI)"] --> B{"判断磁盘类型"}
+  B -->|"NVMe"| C["NVMeSmartToATASmart()\n转换为 ATA 格式"]
+  B -->|"ATA/SATA"| D["直接解析 ATA_SMART_INFO"]
+  C --> E["检查厂商 DiskVendorId"]
+  D --> E
+  E --> F{"厂商专属处理"}
+  F -->|"Samsung"| G["SmartSamsung 解析器"]
+  F -->|"Intel"| H["SmartIntel 解析器"]
+  F -->|"通用 HDD"| I["Smart 通用解析器"]
+  F -->|"...其他厂商"| J["对应厂商解析器"]
+  G & H & I & J --> K["更新 ATA_SMART_INFO.Attribute[]"]
+  K --> L{"检查关键属性\n05h / C5h / C6h / BBh"}
+  L -->|"触发阈值"| M["DISK_STATUS_BAD / CAUTION"]
+  L -->|"未触发"| N["DISK_STATUS_GOOD"]
+  M & N --> O["emit sigDiskInfosChanged()\n通知 UI 更新"]
+    </div>
+    <p class="caption">图 7：SMART 数据读取与健康状态判断流程</p>
+  </div>
+</section>
+
+<!-- ══ 6. 信号与槽 ══ -->
+<section id="signals">
+  <h2>🔗 信号与槽连接图</h2>
+
+  <div class="diagram-wrap">
+    <div class="mermaid">
+flowchart LR
+  subgraph DIM["DiskInfoMgr 信号"]
+    S1["sigDiskInfosChanged()"]
+    S2["sigLanguageChanged()"]
+    S3["sigIsTempFchanged()"]
+    S4["sigSwitchDiskIndex()"]
+    S5["sigAboutRefresh()"]
+    S6["sigCheckForPop()"]
+    S7["sigShowFrame()"]
+    S8["sigHoverEnter(x,y)"]
+    S9["sigHoverLeave()"]
+    S10["sigExit()"]
+  end
+  subgraph Tray["CTrayIcon 信号"]
+    T1["sigShowFrame()"]
+    T2["sigExit()"]
+    T3["sigHoverEnter(x,y)"]
+    T4["sigHoverLeave()"]
+  end
+  subgraph Win["CDiskHealthMainWin 槽"]
+    W1["onDiskInfosChanged()"]
+    W2["onLanguageChanged()"]
+    W3["onTempUnitChanged()"]
+    W4["切换磁盘索引"]
+  end
+  subgraph RT["RefreshThread"]
+    R1["finished信号"]
+  end
+
+  S1 -->|"Qt::QueuedConnection"| W1
+  S2 --> W2
+  S3 --> W3
+  S4 --> W4
+  T1 -->|"relay"| S7
+  T2 -->|"relay"| S10
+  T3 --> S8
+  T4 --> S9
+  R1 -->|"线程完成"| S1
+    </div>
+    <p class="caption">图 8：模块间信号/槽连接关系图</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="icon">📡</span> 信号槽速查表</h3>
+    <div class="tbl-wrap">
+      <table class="sig-table">
+        <thead><tr><th>信号发出者</th><th>信号</th><th>槽接收者</th><th>槽函数</th><th>触发时机</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>RefreshThread</td>
+            <td>finished()</td>
+            <td>DiskInfoMgr</td>
+            <td>lambda</td>
+            <td>后台刷新线程执行完毕</td>
+          </tr>
+          <tr>
+            <td>DiskInfoMgr</td>
+            <td>sigDiskInfosChanged()</td>
+            <td>CDiskHealthMainWin</td>
+            <td>onDiskInfosChanged()</td>
+            <td>磁盘数据刷新完成</td>
+          </tr>
+          <tr>
+            <td>DiskInfoMgr</td>
+            <td>sigLanguageChanged()</td>
+            <td>CDiskHealthMainWin</td>
+            <td>onLanguageChanged()</td>
+            <td>用户切换界面语言</td>
+          </tr>
+          <tr>
+            <td>DiskInfoMgr</td>
+            <td>sigIsTempFchanged()</td>
+            <td>CDiskHealthMainWin</td>
+            <td>onTempUnitChanged()</td>
+            <td>切换温度单位（℃/℉）</td>
+          </tr>
+          <tr>
+            <td>DiskInfoMgr</td>
+            <td>sigSwitchDiskIndex()</td>
+            <td>CDiskHealthMainWin</td>
+            <td>lambda → setCurrentIndex</td>
+            <td>外部（EPM）指定切换到某块磁盘</td>
+          </tr>
+          <tr>
+            <td>CTrayIcon</td>
+            <td>sigHoverEnter(x,y)</td>
+            <td>DiskInfoMgr</td>
+            <td>doHoverEnter(x,y)</td>
+            <td>鼠标悬停托盘图标</td>
+          </tr>
+          <tr>
+            <td>CTrayIcon</td>
+            <td>sigHoverLeave()</td>
+            <td>DiskInfoMgr</td>
+            <td>hoverLeave()</td>
+            <td>鼠标离开托盘区域</td>
+          </tr>
+          <tr>
+            <td>CTrayIcon</td>
+            <td>sigShowFrame()</td>
+            <td>DiskInfoMgr</td>
+            <td>showFrame()</td>
+            <td>托盘双击 / 菜单"Show"</td>
+          </tr>
+          <tr>
+            <td>CTrayIcon</td>
+            <td>sigExit()</td>
+            <td>DiskInfoMgr</td>
+            <td>sigExit(relay)</td>
+            <td>托盘菜单"Exit"</td>
+          </tr>
+          <tr>
+            <td>CBPComboBox (DiskList)</td>
+            <td>currentIndexChanged(int)</td>
+            <td>CDiskHealthMainWin</td>
+            <td>onDiskSelected(int)</td>
+            <td>用户切换磁盘</td>
+          </tr>
+          <tr>
+            <td>CBPPushBtn (Refresh)</td>
+            <td>clicked()</td>
+            <td>CDiskHealthMainWin</td>
+            <td>onRefreshClicked()</td>
+            <td>用户点击刷新按钮</td>
+          </tr>
+          <tr>
+            <td>CBPCheckBox (AutoStart)</td>
+            <td>toggled(bool)</td>
+            <td>CDiskHealthMainWin</td>
+            <td>onAutoStartToggled(bool)</td>
+            <td>用户勾选开机自启</td>
+          </tr>
+          <tr>
+            <td>QTimer (EPMTimer)</td>
+            <td>timeout()</td>
+            <td>DiskInfoMgr</td>
+            <td>refreshDisks()</td>
+            <td>后台定时刷新（60s）</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 7. 业务流程 ══ -->
+<section id="flow">
+  <h2>🔄 核心业务流程</h2>
+
+  <div class="card">
+    <h3><span class="icon">①</span> 磁盘枚举流程</h3>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div>
+          <strong>设置枚举标志</strong>
+          配置 <code>FlagUsbSat / FlagMegaRAID</code> 等标志，决定是否枚举 USB、RAID 等类型设备。
+        </div>
+      </div>
+      <div class="flow-step">
+        <div>
+          <strong>调用 CAtaSmart::Init()</strong>
+          遍历 <code>\\.\PhysicalDrive0</code> ~ <code>PhysicalDrive55</code>，尝试打开设备句柄。
+        </div>
+      </div>
+      <div class="flow-step">
+        <div>
+          <strong>识别命令类型</strong>
+          根据设备响应确定使用 <code>CMD_TYPE_PHYSICAL_DRIVE</code>、<code>CMD_TYPE_NVME_STORAGE_QUERY</code>、<code>CMD_TYPE_SAT</code> 等命令类型。
+        </div>
+      </div>
+      <div class="flow-step">
+        <div>
+          <strong>读取 SMART 数据</strong>
+          通过 <code>DeviceIoControl</code>（IOCTL_ATA_PASS_THROUGH / DFP_RECEIVE_DRIVE_DATA）或 WMI 读取原始 SMART 字节流。
+        </div>
+      </div>
+      <div class="flow-step">
+        <div>
+          <strong>解析 ATA_SMART_INFO</strong>
+          填充 Model、SerialNumber、Firmware、Temperature、IsSsd、DiskVendorId 等字段。
+        </div>
+      </div>
+      <div class="flow-step">
+        <div>
+          <strong>识别厂商并执行专属解析</strong>
+          根据 Model 字符串匹配 <code>VENDOR_ID</code>，调用对应厂商解析逻辑处理特殊 SMART 属性。
+        </div>
+      </div>
+      <div class="flow-step">
+        <div>
+          <strong>计算健康状态</strong>
+          检查 05h/C5h/C6h/BBh 等关键属性值是否超过 Threshold，综合判断 DISK_STATUS。
+        </div>
+      </div>
+      <div class="flow-step">
+        <div>
+          <strong>通知 UI 更新</strong>
+          <code>RefreshThread::finished</code> → <code>sigDiskInfosChanged</code> → <code>CDiskHealthMainWin::onDiskInfosChanged()</code>。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:24px">
+    <h3><span class="icon">②</span> 健康状态判断逻辑（代码节选）</h3>
+    <pre><code>// DiskInfoMgr::loadInfo() — 设置关键属性阈值
+vars[i].Threshold05 = 1;   // 05h: 重新分配扇区数
+vars[i].ThresholdC5 = 1;   // C5h: 等待重新分配扇区数
+vars[i].ThresholdC6 = 1;   // C6h: 无法纠正扇区数
+vars[i].ThresholdFF = 10;  // FFh: NAND 闪存写入
+
+// 温度警戒值
+if (vars[i].IsSsd)
+    vars[i].AlarmTemperature = 60;  // SSD: 60°C
+else
+    vars[i].AlarmTemperature = 50;  // HDD: 50°C
+
+// DISK_STATUS 枚举
+// DISK_STATUS_GOOD    → 所有关键属性正常
+// DISK_STATUS_CAUTION → 存在注意属性（温度高/轻微错误）
+// DISK_STATUS_BAD     → 关键属性超出阈值（坏扇区 > 0 等）</code></pre>
+  </div>
+
+  <div class="diagram-wrap">
+    <div class="mermaid">
+flowchart TD
+  A([用户启动 DiskHealth]) --> B[parseArgs 解析参数]
+  B --> C{是否 EPM 模式}
+  C -->|是| D[连接 LocalSocket\n等待 EPM 消息]
+  C -->|否| E{是否控制台模式}
+  E -->|否| F[创建 CTrayIcon\n注册系统托盘]
+  E -->|是| G[仅后台运行]
+  F & D & G --> H[创建 CDiskHealthMainWin]
+  H --> I[RefreshThread::start()]
+  I --> J[CAtaSmart::Init()]
+  J --> K[枚举磁盘 0~55]
+  K --> L[读取 SMART 数据]
+  L --> M[判断健康状态]
+  M --> N[emit sigDiskInfosChanged]
+  N --> O[UI 更新]
+  O --> P{用户操作}
+  P -->|切换磁盘| Q[updateDiskInfo]
+  P -->|点击刷新| I
+  P -->|托盘悬停| R[显示浮动摘要]
+  P -->|退出| S([程序结束])
+  Q --> O
+    </div>
+    <p class="caption">图 9：完整业务流程图</p>
+  </div>
+</section>
+
+<!-- ══ 8. 设备支持 ══ -->
+<section id="disk-types">
+  <h2>💽 设备与接口支持</h2>
+
+  <div class="card">
+    <h3><span class="icon">🔌</span> 支持的接口类型与命令协议</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>接口类型</th><th>命令类型</th><th>Windows API</th><th>备注</th></tr></thead>
+        <tbody>
+          <tr><td>SATA (ATA)</td><td>CMD_TYPE_PHYSICAL_DRIVE</td><td>DFP_RECEIVE_DRIVE_DATA</td><td>最常见的内置硬盘接口</td></tr>
+          <tr><td>SATA (ATA)</td><td>CMD_TYPE_SCSI_MINIPORT</td><td>IOCTL_SCSI_MINIPORT</td><td>部分控制器需要此路径</td></tr>
+          <tr><td>SATA (ATA)</td><td>CMD_TYPE_SAT</td><td>IOCTL_ATA_PASS_THROUGH</td><td>需要 WinXP SP2 以上</td></tr>
+          <tr><td>NVMe</td><td>CMD_TYPE_NVME_STORAGE_QUERY</td><td>IOCTL_STORAGE_QUERY_PROPERTY</td><td>Win10 原生支持</td></tr>
+          <tr><td>NVMe (Samsung)</td><td>CMD_TYPE_NVME_SAMSUNG</td><td>厂商自定义 IOCTL</td><td>三星 NVMe 专用</td></tr>
+          <tr><td>NVMe (Intel)</td><td>CMD_TYPE_NVME_INTEL</td><td>厂商自定义 IOCTL</td><td>Intel NVMe 专用</td></tr>
+          <tr><td>USB-SATA</td><td>CMD_TYPE_SAT (SAT-over-USB)</td><td>IOCTL_ATA_PASS_THROUGH</td><td>FlagUsbSat=1 启用</td></tr>
+          <tr><td>USB-NVMe (JMicron)</td><td>CMD_TYPE_NVME_JMICRON</td><td>JMicron 专用协议</td><td>FlagUsbNVMeJMicron=1 启用</td></tr>
+          <tr><td>USB-NVMe (ASMedia)</td><td>CMD_TYPE_NVME_ASMEDIA</td><td>ASMedia 专用协议</td><td>FlagUsbNVMeASMedia=1 启用</td></tr>
+          <tr><td>RAID (CSMI)</td><td>CMD_TYPE_CSMI</td><td>CSMI (通用存储管理接口)</td><td>Intel/AMD RAID 控制器</td></tr>
+          <tr><td>RAID (MegaRAID)</td><td>CMD_TYPE_MEGARAID</td><td>MegaRAID 专用 IOCTL</td><td>FlagMegaRAID=1 启用</td></tr>
+          <tr><td>WMI 回退</td><td>CMD_TYPE_WMI</td><td>WMI MSStorageDriver_ATAPISmartData</td><td>其他方式失败时的兜底</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="icon">🏭</span> 支持的存储厂商</h3>
+    <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:8px">
+      <span style="background:#E3F2FD;padding:4px 12px;border-radius:20px;font-size:0.85rem">💾 Samsung (三星)</span>
+      <span style="background:#E3F2FD;padding:4px 12px;border-radius:20px;font-size:0.85rem">💾 Intel (英特尔)</span>
+      <span style="background:#E3F2FD;padding:4px 12px;border-radius:20px;font-size:0.85rem">💾 WDC (西部数据)</span>
+      <span style="background:#E3F2FD;padding:4px 12px;border-radius:20px;font-size:0.85rem">💾 Seagate (希捷)</span>
+      <span style="background:#E3F2FD;padding:4px 12px;border-radius:20px;font-size:0.85rem">💾 Micron (美光)</span>
+      <span style="background:#E3F2FD;padding:4px 12px;border-radius:20px;font-size:0.85rem">💾 SanDisk (闪迪)</span>
+      <span style="background:#E3F2FD;padding:4px 12px;border-radius:20px;font-size:0.85rem">💾 Toshiba (东芝)</span>
+      <span style="background:#E3F2FD;padding:4px 12px;border-radius:20px;font-size:0.85rem">💾 Kingston (金士顿)</span>
+      <span style="background:#E3F2FD;padding:4px 12px;border-radius:20px;font-size:0.85rem">💾 SK Hynix (海力士)</span>
+      <span style="background:#E3F2FD;padding:4px 12px;border-radius:20px;font-size:0.85rem">💾 Kioxia (铠侠)</span>
+      <span style="background:#E8F5E9;padding:4px 12px;border-radius:20px;font-size:0.85rem">🇨🇳 YMTC (长江存储)</span>
+      <span style="background:#E8F5E9;padding:4px 12px;border-radius:20px;font-size:0.85rem">🇨🇳 SSSTC (深圳国科微)</span>
+      <span style="background:#E8F5E9;padding:4px 12px;border-radius:20px;font-size:0.85rem">🇨🇳 Silicon Motion (慧荣)</span>
+      <span style="background:#FFF3E0;padding:4px 12px;border-radius:20px;font-size:0.85rem">🔧 Phison (群联)</span>
+      <span style="background:#FFF3E0;padding:4px 12px;border-radius:20px;font-size:0.85rem">🔧 Marvell (美满)</span>
+      <span style="background:#FFF3E0;padding:4px 12px;border-radius:20px;font-size:0.85rem">🔧 JMicron (智微)</span>
+      <span style="background:#FFF3E0;padding:4px 12px;border-radius:20px;font-size:0.85rem">🔧 Realtek (瑞昱)</span>
+      <span style="background:#FFF3E0;padding:4px 12px;border-radius:20px;font-size:0.85rem">🔧 Indilinx</span>
+      <span style="background:#FFF3E0;padding:4px 12px;border-radius:20px;font-size:0.85rem">🔧 SandForce</span>
+      <span style="background:#FFF3E0;padding:4px 12px;border-radius:20px;font-size:0.85rem">🔧 Corsair (海盗船)</span>
+      <span style="background:#FFF3E0;padding:4px 12px;border-radius:20px;font-size:0.85rem">🔧 Plextor (浦科特)</span>
+      <span style="background:#FFF3E0;padding:4px 12px;border-radius:20px;font-size:0.85rem">🔧 OCZ</span>
+      <span style="background:#FFF3E0;padding:4px 12px;border-radius:20px;font-size:0.85rem">🔧 Apacer (宇瞻)</span>
+      <span style="background:#FFF3E0;padding:4px 12px;border-radius:20px;font-size:0.85rem">🔧 Maxiotek (迈络)</span>
+    </div>
+  </div>
+
+  <div class="diagram-wrap">
+    <div class="mermaid">
+graph LR
+  subgraph HDD["机械硬盘 (HDD)"]
+    H1["SATA HDD\n警戒温度: 50°C"]
+    H2["PATA HDD\n(IDE)"]
+  end
+  subgraph SSD["固态硬盘 (SSD)"]
+    S1["SATA SSD\n警戒温度: 60°C"]
+    S2["NVMe SSD\nPCIe 接口"]
+    S3["USB SSD\n(USB-SATA/NVMe)"]
+  end
+  subgraph RAID["阵列/企业"]
+    R1["CSMI RAID"]
+    R2["MegaRAID SAS"]
+  end
+  H1 & H2 -->|"ATA Pass-Through\nSCSI Miniport"| ATA["CAtaSmart\n读取引擎"]
+  S1 -->|"SAT / Direct"| ATA
+  S2 -->|"NVMe StorageQuery\n厂商专用"| ATA
+  S3 -->|"SAT-over-USB\nUAS协议"| ATA
+  R1 & R2 -->|"CSMI/MegaRAID IOCTL"| ATA
+    </div>
+    <p class="caption">图 10：不同磁盘类型与读取路径关系图</p>
+  </div>
+</section>
+
+<!-- ══ 9. 常见问题 ══ -->
+<section id="faq">
+  <h2>❓ 常见问题</h2>
+
+  <div class="card">
+    <h3><span class="icon">Q</span> 为何某些 USB 硬盘无法读取 SMART 数据？</h3>
+    <p>USB 外置硬盘需要 USB 桥接芯片支持 SAT（SCSI-ATA Translation）透传。不支持 SAT 的桥接芯片（如某些廉价 USB 3.0 芯片）无法透传 ATA 命令，因此 SMART 数据读取会失败。DiskHealth 支持 JMicron、ASMedia、Realtek、Sunplus、Prolific、Cypress 等主流桥接芯片。</p>
+    <div class="note warn">如果 USB 硬盘显示在列表中但 SMART 属性为空，说明桥接芯片不在支持列表中，或需要管理员权限运行程序。</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="icon">Q</span> 磁盘状态为 Caution，但我感觉硬盘没有问题？</h3>
+    <p>Caution 状态并不意味着硬盘立即会损坏，而是表示一个或多个 SMART 属性已超过警戒值。DiskHealth 对以下属性设置了较低阈值（=1），即使只有 1 个坏扇区也会触发 Caution：</p>
+    <ul style="padding-left:20px; margin-top:8px">
+      <li><code>05h</code> Reallocated Sectors Count — 已有磁盘区域被重新分配，说明存在坏扇区</li>
+      <li><code>C5h</code> Current Pending Sector Count — 存在不稳定扇区，读取时可能出错</li>
+      <li><code>C6h</code> Uncorrectable Sector Count — 存在无法纠正的错误扇区</li>
+    </ul>
+    <div class="note tip">建议：即使是 Caution 状态，也应尽快备份重要数据，并持续观察这些属性值的变化趋势。</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="icon">Q</span> NVMe SSD 的温度和 SMART 属性与 SATA SSD 显示方式有何不同？</h3>
+    <p>NVMe SSD 使用独立的 NVMe SMART/Health Information Log，通过 <code>IOCTL_STORAGE_QUERY_PROPERTY</code> 读取。DiskHealth 通过 <code>NVMeSmartToATASmart()</code> 函数将 NVMe 格式转换为统一的 ATA SMART 属性格式，实现与 SATA 硬盘相同的展示界面。NVMe 支持最多 15 个映射属性（<code>NVME_ATTRIBUTE = 15</code>）。</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="icon">Q</span> 程序运行需要管理员权限吗？</h3>
+    <p>是的，读取磁盘 SMART 数据需要以 Administrator 身份运行，因为 <code>DeviceIoControl</code> 对 <code>\\.\PhysicalDriveN</code> 的访问需要特权。对于注册系统托盘、访问注册表（注册自启动项）同样需要管理员权限。</p>
+    <div class="note">建议在 .exe 的清单文件（manifest）中设置 <code>requireAdministrator</code>，或通过右键"以管理员身份运行"启动程序。</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="icon">Q</span> EPM 模式是什么？</h3>
+    <p>EPM（EaseUS Partition Master）模式是 DiskHealth 作为 EPM 子进程运行时的特殊模式。通过命令行参数 <code>EPM</code> 启动，并通过 <code>QLocalSocket</code> 与父进程通信，接收磁盘切换指令（<code>sigSwitchDiskIndex</code>）并将 SMART 数据发送回 EPM。EPM 模式下，阿里云日志上报会被禁用（<code>inEPM = true</code>）。</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="icon">Q</span> 如何添加对新 NVMe 厂商的支持？</h3>
+    <p>在 <code>AtaSmart.h</code> 中的 <code>VENDOR_ID</code> 枚举添加新厂商 ID，在 <code>ssdVendorString[]</code> 和 <code>attributeString[]</code> 数组中添加对应字符串，然后在 <code>AtaSmart.cpp</code> 的 <code>Init()</code> 函数中添加 Model 字符串匹配逻辑，最后在 <code>DiskAttr.cpp</code> 的 <code>loadDiskAttrs()</code> 中添加该厂商的属性名称映射表。</p>
+  </div>
+</section>
+
+</div><!-- /container -->
+
+<footer>
+  <p>DiskHealth 帮助文档 · 基于代码分析自动生成 · 2026-05-09</p>
+  <p style="margin-top:6px">核心 SMART 引擎参考：<a href="https://crystalmark.info/" style="color:#90A4AE">CrystalDiskInfo (MIT License)</a> by hiyohiyo</p>
+</footer>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    themeVariables: {
+      primaryColor: '#1976D2',
+      primaryTextColor: '#fff',
+      primaryBorderColor: '#0D47A1',
+      lineColor: '#607D8B',
+      secondaryColor: '#E3F2FD',
+      tertiaryColor: '#FFF8E1',
+      background: '#FFFFFF',
+      mainBkg: '#E3F2FD',
+      nodeBorder: '#1976D2',
+      clusterBkg: '#F5F7FA',
+      titleColor: '#0D47A1',
+      edgeLabelBackground: '#FFFFFF',
+      fontFamily: '"Segoe UI", "Microsoft YaHei", Arial, sans-serif',
+      fontSize: '14px'
+    },
+    flowchart: { useMaxWidth: true, htmlLabels: true },
+    sequence: { useMaxWidth: true, actorMargin: 60 },
+    classDiagram: { useMaxWidth: true }
+  });
+
+  // 导航高亮
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('nav a');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navLinks.forEach(a => a.classList.remove('active'));
+        const link = document.querySelector(`nav a[href="#${e.target.id}"]`);
+        if (link) link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

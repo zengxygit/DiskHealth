@@ -1,0 +1,410 @@
+@startuml DiskHealth_Sequence_Startup
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam sequenceArrowThickness 1.5
+skinparam roundcorner 6
+skinparam sequenceParticipantBorderColor #0D47A1
+skinparam sequenceParticipantBackgroundColor #E3F2FD
+skinparam sequenceParticipantFontSize 13
+skinparam sequenceActorBorderColor #37474F
+skinparam sequenceLifeLineBorderColor #90A4AE
+skinparam sequenceGroupBorderColor #FF9800
+skinparam sequenceGroupBackgroundColor #FFF8E1
+skinparam noteBorderColor #F9A825
+skinparam noteBackgroundColor #FFFDE7
+skinparam sequenceArrowColor #37474F
+
+title 时序图 1：应用启动流程\n(DiskHealth Startup Sequence)
+
+participant "main()" as Main
+participant "QApplication" as App
+participant "DiskInfoMgr" as DIM
+participant "CDiskHealthMainWin" as Win
+participant "CTrayIcon" as Tray
+participant "RefreshThread" as RT
+participant "CAtaSmart" as ATA
+
+== 初始化阶段 ==
+
+Main -> App : 1. 创建 QApplication\n(setPreApplicationEnv / SetQtPath)
+activate App
+
+Main -> DIM : 2. new DiskInfoMgr()
+activate DIM
+
+DIM -> DIM : 3. parseArgs() 解析命令行参数\n(_AUTOSTARTUP_ / _EPM_CONSOLE)
+
+DIM -> DIM : 4. 读取注册表配置\n(TempF / ShowIcon)\nHKEY_LOCAL_MACHINE\\SOFTWARE\\EaseUS\\DiskHealth
+
+alt showIcon == true && !m_bEPMStart
+  DIM -> Tray : 5. new CTrayIcon(this)
+  activate Tray
+  Tray --> DIM : 返回实例
+  DIM -> Tray : connect: sigHoverEnter → doHoverEnter
+  DIM -> Tray : connect: sigHoverLeave → hoverLeave
+  DIM -> Tray : connect: sigShowFrame  → showFrame
+  DIM -> Tray : connect: sigExit       → sigExit(relay)
+end
+
+DIM -> DIM : 6. connect m_refreshThread::finished\n→ lambda(sigDiskInfosChanged)
+DIM -> DIM : 7. connect m_EPMTimer::timeout → refreshDisks()
+DIM -> DIM : 8. getCPUTime() / qApp->installNativeEventFilter(this)
+
+== 创建主窗口 ==
+
+Main -> Win : 9. new CDiskHealthMainWin(&dim)
+activate Win
+
+Win -> Win : 10. Init()\n创建控件布局：ComboBox / Labels / TableView
+Win -> Win : 11. InitConnections()\n绑定信号槽
+note right of Win
+  关键连接:
+  - ComboBox::currentIndexChanged → onDiskSelected
+  - RefreshBtn::clicked → onRefreshClicked
+  - AutoStartCheck::toggled → onAutoStartToggled
+  - DIM::sigDiskInfosChanged → onDiskInfosChanged
+  - DIM::sigLanguageChanged → onLanguageChanged
+  - DIM::sigIsTempFchanged → onTempUnitChanged
+  - DIM::sigSwitchDiskIndex → setCurrentIndex
+end note
+
+Win -> DIM : 12. InitData() → setMaminWin(this)
+DIM --> Win : ok
+
+== 后台刷新 ==
+
+Win -> DIM : 13. refreshDisks()
+DIM -> RT : 14. start() [启动工作线程]
+activate RT
+
+RT -> DIM : 15. run() → loadInfo()
+
+DIM -> DIM : 16. 配置 CAtaSmart 枚举标志\n(FlagUsbSat=1, FlagMegaRAID=1 等)
+
+DIM -> ATA : 17. Init(TRUE, FALSE, NULL, FALSE, TRUE, FALSE)
+activate ATA
+
+ATA -> ATA : 18. 枚举 PhysicalDrive0 ~ PhysicalDrive55\n(打开设备句柄，识别磁盘)
+ATA -> ATA : 19. 枚举 SCSI 端口 (0~15) × 目标ID (0~7)
+ATA -> ATA : 20. 读取 SMART 数据\n(IOCTL_ATA_PASS_THROUGH / NVMe StorageQuery / WMI)
+ATA -> ATA : 21. 识别厂商 DiskVendorId\n匹配 Model 字符串 → VENDOR_ID 枚举
+
+ATA --> DIM : vars[] 填充完毕（N 块磁盘）
+deactivate ATA
+
+loop i = 0 to vars.GetCount()-1
+  DIM -> DIM : 22. UpdateSmartInfo(i)\n更新 SMART 属性值
+  DIM -> DIM : 23. 设置阈值\nThreshold05=1, ThresholdC5=1, ThresholdC6=1\nAlarmTemperature=60(SSD)/50(HDD)
+end
+
+DIM -> DIM : 24. resetDiskList()\n生成 m_listDiskInfos
+
+RT --> DIM : 25. finished() 信号
+deactivate RT
+
+== UI 更新 ==
+
+DIM -> DIM : 26. emit sigDiskInfosChanged()
+DIM -> Win : 27. onDiskInfosChanged() [Qt::QueuedConnection]
+
+Win -> Win : 28. loadDiskList()\n刷新 ComboBox 条目列表
+Win -> Win : 29. updateDiskInfo(0)\n显示第一块磁盘详情
+Win -> DIM : 30. getDiskStatus(0)
+DIM --> Win : {status, healthPercent, temp, ...}
+Win -> DIM : 31. getDiskStatusInfo(0)
+DIM --> Win : [{iconId, attrName, curValue, raw}]
+
+== 显示窗口 ==
+
+Main -> Win : 32. show()
+Win -> Win : showEvent() → m_bFirstShow=false
+
+Main -> App : 33. return a.exec() [进入事件循环]
+
+deactivate ATA
+deactivate Win
+deactivate DIM
+deactivate App
+
+@enduml
+
+
+@startuml DiskHealth_Sequence_SwitchDisk
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam sequenceArrowThickness 1.5
+skinparam roundcorner 6
+skinparam sequenceParticipantBorderColor #0D47A1
+skinparam sequenceParticipantBackgroundColor #E3F2FD
+skinparam sequenceParticipantFontSize 13
+skinparam sequenceGroupBorderColor #FF9800
+skinparam sequenceGroupBackgroundColor #FFF8E1
+skinparam noteBorderColor #F9A825
+skinparam noteBackgroundColor #FFFDE7
+skinparam sequenceArrowColor #37474F
+
+title 时序图 2：用户切换磁盘\n(Switch Disk Sequence)
+
+actor "用户" as User
+participant "CDiskHealthMainWin" as Win
+participant "DiskInfoMgr" as DIM
+participant "AttrModel" as AM
+
+== 用户选择磁盘 ==
+
+User -> Win : 1. 在 ComboBox 下拉选择磁盘 N
+Win -> Win : 2. slot: onDiskSelected(N)
+
+== 更新状态和温度 ==
+
+Win -> Win : 3. updateDiskInfo(N)
+Win -> DIM : 4. getDiskStatus(N)
+activate DIM
+DIM --> Win : 5. return QVariantMap\n{statusInfo, healthPercent, temperature,\n tempStatus, feature, serialNo, ...}
+deactivate DIM
+
+Win -> Win : 6. updateStatusAndTemp(N)\n刷新 m_pStatusText / m_pTempTxt\n更新健康度百分比显示
+
+== 更新左侧信息卡片 ==
+
+Win -> DIM : 7. getDiskStatusInfo(N)
+activate DIM
+DIM --> Win : 8. return QVariantList\n[{iconId, attrName, curValue,\n threshold, raw}, ...]
+deactivate DIM
+
+Win -> Win : 9. updateDiskStatusInfo(N)\n刷新 m_pDiskStatusInfo 中的条目\n(Power-On Hours, Power Cycle Count 等)
+
+== 刷新 SMART 属性表格 ==
+
+Win -> AM : 10. reset()\n触发 beginResetModel / endResetModel
+activate AM
+AM --> Win : ok
+deactivate AM
+
+Win -> Win : 11. updateAttributeTable(N)\n设置 m_pAtrriList->setModel(&m_model)
+
+note over AM,DIM
+  QTableView 按需调用 AttrModel::data()
+  AttrModel 从 DiskInfoMgr::m_listRightInfo 读取数据
+end note
+
+AM -> DIM : 12. data(index, role) [按需，多次]
+activate DIM
+note right of AM
+  role 类型:
+  USER_STATUS, USER_ID,
+  USER_ATTR, USER_COUNT,
+  USER_HOLD, USER_RAW
+end note
+DIM --> AM : 13. return QVariant (属性值)
+deactivate DIM
+AM --> Win : 14. 渲染 SMART 属性列表\n(ID / 属性名 / 当前值 / 最差值 / 阈值 / Raw)
+
+== 记录当前索引 ==
+
+Win -> DIM : 15. selectDisk(N)
+activate DIM
+DIM -> DIM : m_iDiskIndex = N
+deactivate DIM
+
+== 条件性刷新 ==
+
+alt 数据为空 且 !isBusy()
+  Win -> DIM : 16. refreshDisks()\n触发后台重新扫描
+end
+
+@enduml
+
+
+@startuml DiskHealth_Sequence_TrayIcon
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam sequenceArrowThickness 1.5
+skinparam roundcorner 6
+skinparam sequenceParticipantBorderColor #0D47A1
+skinparam sequenceParticipantBackgroundColor #E3F2FD
+skinparam sequenceParticipantFontSize 13
+skinparam sequenceGroupBorderColor #FF9800
+skinparam sequenceGroupBackgroundColor #FFF8E1
+skinparam noteBorderColor #F9A825
+skinparam noteBackgroundColor #FFFDE7
+skinparam sequenceArrowColor #37474F
+
+title 时序图 3：系统托盘图标交互\n(Tray Icon Interaction Sequence)
+
+participant "Windows 系统\n(Win32 Shell)" as OS
+participant "CTrayIcon" as Tray
+participant "DiskInfoMgr" as DIM
+participant "CDiskHealthMainWin" as Win
+
+note over OS, Tray
+  托盘图标通过 Shell_NotifyIcon(NIM_ADD, &m_nid) 注册
+  消息 ID: WM_TRAYNOTIFY = 10086
+  由 nativeEventFilter() 捕获 WM_USER 消息
+end note
+
+== 场景 A：鼠标悬停 ==
+
+OS -> Tray : 1. WM_TRAYNOTIFY\n(NIN_MOUSEENTER / WM_MOUSEMOVE)
+activate Tray
+Tray -> Tray : 2. nativeEventFilter() 捕获并处理
+Tray -> Tray : 3. m_pLeaveTimer->start()\n启动离开检测定时器
+Tray -> DIM : 4. emit sigHoverEnter(x, y)
+deactivate Tray
+
+activate DIM
+DIM -> DIM : 5. doHoverEnter(x, y)\n计算浮窗位置
+DIM -> Win : 6. 显示悬浮摘要窗口\n(展示磁盘状态/温度速览)
+deactivate DIM
+
+== 场景 B：鼠标离开 ==
+
+Tray -> Tray : 7. m_pLeaveTimer::timeout()\n→ CheckMouse()
+activate Tray
+Tray -> Tray : 8. inPos(QCursor::pos())\n确认鼠标已离开托盘图标区域
+Tray -> DIM : 9. emit sigHoverLeave()
+deactivate Tray
+
+activate DIM
+DIM -> Win : 10. hoverLeave()\n隐藏悬浮摘要窗口
+deactivate DIM
+
+== 场景 C：双击图标 / 右键菜单"Show" ==
+
+OS -> Tray : 11. WM_TRAYNOTIFY\n(NIN_BALLOONUSERCLICK / WM_LBUTTONDBLCLK)
+activate Tray
+Tray -> Tray : 12. OnActivate()
+Tray -> DIM : 13. emit sigShowFrame()
+deactivate Tray
+
+activate DIM
+DIM -> DIM : 14. showFrame()
+DIM -> Win : 15. show() / raise() / activateWindow()
+deactivate DIM
+
+== 场景 D：右键菜单"Exit" ==
+
+OS -> Tray : 16. WM_TRAYNOTIFY (WM_RBUTTONUP)
+activate Tray
+Tray -> Tray : 17. 显示右键菜单 m_menu->exec()
+note right of Tray
+  菜单项:
+  - "Show" → act1::triggered
+  - "Exit" → act2::triggered
+end note
+Tray -> DIM : 18. emit sigExit() [act2::triggered]
+deactivate Tray
+
+activate DIM
+DIM -> DIM : 19. emit sigExit() [relay转发]
+DIM -> Win : 20. 接收 sigExit → 关闭窗口
+Win -> Win : 21. OnClose() → qApp->quit()
+deactivate DIM
+
+@enduml
+
+
+@startuml DiskHealth_Sequence_Refresh
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam sequenceArrowThickness 1.5
+skinparam roundcorner 6
+skinparam sequenceParticipantBorderColor #0D47A1
+skinparam sequenceParticipantBackgroundColor #E3F2FD
+skinparam sequenceParticipantFontSize 13
+skinparam sequenceGroupBorderColor #FF9800
+skinparam sequenceGroupBackgroundColor #FFF8E1
+skinparam noteBorderColor #F9A825
+skinparam noteBackgroundColor #FFFDE7
+skinparam sequenceArrowColor #37474F
+
+title 时序图 4：手动刷新磁盘数据\n(Manual Refresh Sequence)
+
+actor "用户" as User
+participant "CDiskHealthMainWin" as Win
+participant "DiskInfoMgr" as DIM
+participant "RefreshThread\n[工作线程]" as RT
+participant "CAtaSmart" as ATA
+
+== 触发刷新 ==
+
+User -> Win : 1. 点击刷新按钮 (m_pRefreshBtn)
+Win -> DIM : 2. clickRefresh()\n记录用户主动刷新操作
+activate DIM
+DIM --> Win : ok
+deactivate DIM
+
+Win -> DIM : 3. refreshDisks()
+activate DIM
+
+DIM -> DIM : 4. 检查 m_refreshThread.isRunning()
+alt 线程未在运行
+  DIM -> RT : 5. start() [异步启动工作线程]
+  activate RT
+else 线程已在运行
+  DIM -> DIM : 跳过，等待当前刷新完成
+end
+deactivate DIM
+
+== 后台扫描阶段（工作线程） ==
+
+note over RT, ATA
+  以下代码运行于 RefreshThread 工作线程
+  通过 Qt::QueuedConnection 与主线程通信
+end note
+
+RT -> DIM : 6. run() → loadInfo()
+activate DIM
+
+DIM -> DIM : 7. m_listDiskInfos.clear()
+DIM -> DIM : 8. 重置 CAtaSmart 枚举标志\n(FlagUsbSat=1, FlagMegaRAID=1 ...)
+
+DIM -> ATA : 9. Init(TRUE, FALSE, NULL, FALSE, TRUE, FALSE)
+activate ATA
+ATA -> ATA : 10. 重新枚举 PhysicalDrive0~55
+ATA -> ATA : 11. 识别设备接口类型\n(SATA/NVMe/USB/SCSI/RAID)
+ATA -> ATA : 12. 读取 SMART 数据\n(多路径尝试: IOCTL → NVMe → SAT → WMI)
+ATA --> DIM : vars[] 重新填充
+deactivate ATA
+
+loop i = 0 to vars.GetCount()-1
+  DIM -> ATA : 13. UpdateSmartInfo(i)
+  activate ATA
+  ATA -> ATA : 14. 解析厂商专属 SMART 属性
+  ATA -> ATA : 15. 计算 DISK_STATUS\n(检查 05h/C5h/C6h/BBh 阈值)
+  ATA --> DIM : SMART_STATUS (NO_CHANGE/MINOR/MAJOR_CHANGE)
+  deactivate ATA
+  DIM -> DIM : 16. 处理特殊属性\nProcessTempAttr / ProcessSectorAttr /\nProcessLifeAttr / ProcessScanErrRate
+end
+
+DIM -> DIM : 17. resetDiskList()\n重建 m_listDiskInfos\n更新 m_mapStatus / m_iFirstCautionDisk
+deactivate DIM
+
+RT --> DIM : 18. finished() 信号
+deactivate RT
+
+== 通知 UI 更新（主线程） ==
+
+DIM -> DIM : 19. lambda on finished:\n若不可见则启动 m_EPMTimer(60s)\nm_model.reset()\nemit sigDiskInfosChanged()
+
+DIM -> Win : 20. sigDiskInfosChanged()\n[Qt::QueuedConnection → 主线程]
+
+activate Win
+Win -> Win : 21. onDiskInfosChanged()
+Win -> DIM : 22. getDiskInfos()
+activate DIM
+DIM --> Win : QVariantList (磁盘名称列表)
+deactivate DIM
+Win -> Win : 23. loadDiskList()\n更新 ComboBox 条目\n(保持当前选中索引不变)
+
+alt currentDiskIndex >= 0
+  Win -> Win : 24. updateDiskInfo(currentDiskIndex)\n刷新状态 / 温度 / 信息卡片 / SMART 属性表
+end
+deactivate Win
+
+note over User, ATA
+  若 m_bEPMStart == true，DIM::sendMsgToEPM()
+  会将刷新后的数据通过 QLocalSocket 发送给 EPM 进程
+end note
+
+@enduml

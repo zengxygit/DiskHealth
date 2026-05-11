@@ -1,0 +1,473 @@
+@startuml DiskHealth_ClassDiagram
+skinparam classAttributeIconSize 0
+skinparam classFontSize 13
+skinparam classHeaderBackgroundColor #1976D2
+skinparam classHeaderFontColor #FFFFFF
+skinparam classBorderColor #0D47A1
+skinparam classBackgroundColor #E3F2FD
+skinparam arrowColor #37474F
+skinparam arrowFontSize 11
+skinparam packageBackgroundColor #F5F7FA
+skinparam packageBorderColor #90A4AE
+skinparam stereotypeCBackgroundColor #FFF9C4
+skinparam noteBackgroundColor #FFFDE7
+skinparam noteBorderColor #F9A825
+
+title DiskHealth — 类图 (Class Diagram)
+
+' ══════════════════════════════
+' Package: 表现层 UI Layer
+' ══════════════════════════════
+package "表现层 (UI Layer)" #E3F2FD {
+
+  class CDiskHealthMainWin {
+    ' 继承自 CBPWinFrm (QWidget)
+    - DiskInfoMgr* m_pDiskMgr
+    - CBPComboBox* m_pDiskList
+    - CBPLabel* m_pLeftLb
+    - CBPLabel* m_pRightLb
+    - CBPLabel* m_pStatusText
+    - CBPLabel* m_pHealthPersentTxt
+    - CBPLabel* m_pTempTxt
+    - CBPLabel* m_pTempStatusTxt
+    - CBPImageButton* m_pRefreshBtn
+    - CBPBox* m_pTopWid
+    - QFrame* m_pDiskStatusInfo
+    - QTableView* m_pAtrriList
+    - CBPCheckBox* m_pAutoStartCheck
+    - QVBoxLayout* m_pDiskStatusInfoLayout
+    - QFrame* m_pTempWid
+    - QFrame* m_pStatusWid
+    - int m_currentDiskIndex
+    - bool m_bFirstShow
+    __
+    + CDiskHealthMainWin(pDiskMgr: DiskInfoMgr*, parent: QWidget*)
+    + ~CDiskHealthMainWin()
+    + OnClose() : void <<override>>
+    + onDiskInfosChanged() : void
+    + onLanguageChanged() : void
+    + onTempUnitChanged() : void
+    + onSwitchToDisk(diskIndex: int) : void
+    # showEvent(event: QShowEvent*) : void <<override>>
+    - onDiskSelected(index: int) : void <<slot>>
+    - onRefreshClicked() : void <<slot>>
+    - onTemperatureClicked() : void <<slot>>
+    - onAutoStartToggled(checked: bool) : void <<slot>>
+    - onDoneClicked() : void <<slot>>
+    - InitTitle() : void
+    - Init() : void
+    - InitDiskList() : void
+    - InitStatusWid(layout: QBoxLayout*) : void
+    - InitTempWid(layout: QBoxLayout*) : void
+    - InitData() : void
+    - InitInfo() : void
+    - InitConnections() : void
+    - loadDiskList() : void
+    - updateDiskInfo(diskIndex: int) : void
+    - updateStatusAndTemp(diskIndex: int) : void
+    - updateDiskStatusInfo(diskIndex: int) : void
+    - updateAttributeTable(diskIndex: int) : void
+  }
+
+  class AttrModel {
+    ' 继承自 QAbstractItemModel
+    # DiskInfoMgr* m_pMgr
+    __
+    + AttrModel(parent: DiskInfoMgr*)
+    + reset() : void
+    + parent(index: QModelIndex) : QModelIndex <<override>>
+    + flags(index: QModelIndex) : Qt::ItemFlags <<override>>
+    + index(row: int, col: int, parent: QModelIndex) : QModelIndex <<override>>
+    + rowCount(parent: QModelIndex) : int <<override>>
+    + columnCount(parent: QModelIndex) : int <<override>>
+    + roleNames() : QHash<int, QByteArray> <<override>>
+    + hasChildren(parent: QModelIndex) : bool <<override>>
+    + data(index: QModelIndex, role: int) : QVariant <<override>>
+  }
+
+  enum ItemRoles {
+    USER_STATUS = Qt::UserRole + 1
+    USER_ID
+    USER_ATTR
+    USER_COUNT
+    USER_HOLD
+    USER_RAW
+  }
+
+  class CTrayIcon {
+    ' 继承自 QObject, QAbstractNativeEventFilter
+    - QIcon m_icoDefault
+    - QTimer* m_pLeaveTimer
+    - QRect m_IconRect
+    - QWidget* m_pSysIcon
+    - QMenu* m_menu
+    - QList<QAction*> m_actions
+    - QTimer m_createIconTimer
+    - QPoint m_lastPos
+    - clock_t createTime
+    - bool showMenu
+    - bool firstHover
+    - clock_t lastHoverTime
+    __
+    + CTrayIcon(parent: QObject*)
+    + ~CTrayIcon()
+    + OnActivate() : void
+    + StarListen() : void
+    + CheckMouse() : void
+    + inPos(pt: QPoint) : bool
+    + onCreateIcon() : void
+    # nativeEventFilter(eventType: QByteArray, message: void*, result: long*) : bool <<override>>
+    __ signals __
+    + sigExit() <<signal>>
+    + sigShowFrame() <<signal>>
+    + sigHoverEnter(x: int, y: int) <<signal>>
+    + sigHoverLeave() <<signal>>
+  }
+
+  AttrModel +-- ItemRoles
+}
+
+' ══════════════════════════════
+' Package: 管理层 Manager Layer
+' ══════════════════════════════
+package "管理层 (Manager Layer)" #E8F5E9 {
+
+  class DiskInfoMgr {
+    ' 继承自 QObject, QAbstractNativeEventFilter
+    ' Q_PROPERTY: diskInfos, currentLanguage, isTempF
+    # CAtaSmart m_Ata
+    # QVariantList m_listDiskInfos
+    # QStringList m_listStatusDes
+    # QStringList m_listTempDes
+    # QList<ListInfo> m_listRightInfo
+    # QMap<QString, QMap<QString,QString>> m_attrNames
+    # AttrModel m_model
+    # QString m_strCurLang
+    # QTranslator m_translator
+    # CDiskHealthMainWin* m_pMainWin
+    # RefreshThread m_refreshThread
+    # CTrayIcon* m_tray
+    # QWindow* m_pW
+    # QTimer m_pCPUTimer
+    # QTimer m_EPMTimer
+    # QLocalSocket m_socket
+    # QMap<int,int> m_mapStatus
+    # QString m_strTheme
+    # int m_iCPU
+    # int m_iFirstCautionDisk
+    # int m_iDiskIndex
+    # bool m_bAutoStart
+    # bool m_bEPMStart
+    # bool m_bIsFullScreen
+    # bool m_bRefreshForPop
+    # bool m_bIsEPMDiscoery
+    # bool m_bIsEPMPE
+    # bool m_bIsTempF
+    # bool m_bVisible
+    __
+    + DiskInfoMgr()
+    + ~DiskInfoMgr()
+    + loadInfo() : void <<Q_INVOKABLE>>
+    + getDiskInfos() : QVariantList <<Q_INVOKABLE>>
+    + getDiskStatus(index: int) : QVariantMap <<Q_INVOKABLE>>
+    + getDiskStatusInfo(index: int) : QVariantList <<Q_INVOKABLE>>
+    + getCautionDiskStatusInfo() : QVariantList <<Q_INVOKABLE>>
+    + loadInfoList(index: int) : void <<Q_INVOKABLE>>
+    + getModel() : QAbstractItemModel* <<Q_INVOKABLE>>
+    + getCurrentLanguage() : QString <<Q_INVOKABLE>>
+    + setCurrrentLanguage(lang: QString) : void <<Q_INVOKABLE>>
+    + isAutoStart() : bool <<Q_INVOKABLE>>
+    + delAutoStart() : void <<Q_INVOKABLE>>
+    + addAutoStart() : void <<Q_INVOKABLE>>
+    + refreshDisks() : void <<Q_INVOKABLE>>
+    + setWindowIcon(w: QWindow*) : void <<Q_INVOKABLE>>
+    + showWindow() : bool <<Q_INVOKABLE>>
+    + doDone(check: bool) : bool <<Q_INVOKABLE>>
+    + isTrayExist() : bool <<Q_INVOKABLE>>
+    + doExit() : void <<Q_INVOKABLE>>
+    + mousePos() : QPoint <<Q_INVOKABLE>>
+    + isBusy() : bool <<Q_INVOKABLE>>
+    + popCondition() : bool <<Q_INVOKABLE>>
+    + screenSize() : QPoint <<Q_INVOKABLE>>
+    + diskIndexArg() : int <<Q_INVOKABLE>>
+    + refreshForPop() : void <<Q_INVOKABLE>>
+    + showRaw(index: int) : bool <<Q_INVOKABLE>>
+    + showFrame() : void <<Q_INVOKABLE>>
+    + hoverLeave() : void <<Q_INVOKABLE>>
+    + openUrl() : void <<Q_INVOKABLE>>
+    + showFromCaution() : void <<Q_INVOKABLE>>
+    + clickRefresh() : void <<Q_INVOKABLE>>
+    + selectDisk(index: int) : void <<Q_INVOKABLE>>
+    + setVisible(v: bool) : void <<Q_INVOKABLE>>
+    + firstCautionIndex() : int <<Q_INVOKABLE>>
+    + isTempF() : bool <<Q_INVOKABLE>>
+    + setIsTempF(v: bool) : void <<Q_INVOKABLE>>
+    + fileExists(file: QString) : bool <<Q_INVOKABLE>>
+    + isMainland() : bool <<Q_INVOKABLE>>
+    + theme() : QString <<Q_INVOKABLE>>
+    + getPopLink(lang: QString) : QString <<Q_INVOKABLE>>
+    + showWindowShadow() : bool <<Q_INVOKABLE>>
+    + checkHasSmartError(index: int) : bool
+    + setMaminWin(w: CDiskHealthMainWin*) : void
+    + getFeature(index: int) : QString
+    + GetAttributeDesc(pInfo: ATA_SMART_INFO*, dwId: ULONG) : QString
+    + ProcessSectorAttr(info: ListInfo&, pInfo: ATA_SMART_INFO*, j: int) : bool
+    + ProcessTempAttr(info: ListInfo&, pInfo: ATA_SMART_INFO*, j: int) : bool
+    + ProcessWDCScanDisk(info: ListInfo&, pInfo: ATA_SMART_INFO*, j: int) : bool
+    + ProcessLifeAttr(info: ListInfo&, pInfo: ATA_SMART_INFO*, j: int) : bool
+    + ProcessScanErrRate(info: ListInfo&, pInfo: ATA_SMART_INFO*, j: int) : bool
+    + ProcessLess0DAttr(info: ListInfo&, pInfo: ATA_SMART_INFO*, j: int) : bool
+    + getCPUTime() : void
+    + initMultiLanguage() : void
+    + onReadEPMMsg() : void
+    + sendMsgToEPM() : void
+    + resetDiskList() : void
+    # nativeEventFilter(eventType: QByteArray, message: void*, result: long*) : bool <<override>>
+    # parseArgs() : void
+    # doHoverEnter(x: int, y: int) : void
+    __ signals __
+    + sigDiskInfosChanged() <<signal>>
+    + sigLanguageChanged() <<signal>>
+    + sigCheckForPop() <<signal>>
+    + sigSwitchDiskIndex() <<signal>>
+    + sigExit() <<signal>>
+    + sigShowFrame() <<signal>>
+    + sigHoverEnter(x: int, y: int) <<signal>>
+    + sigHoverLeave() <<signal>>
+    + sigAboutRefresh() <<signal>>
+    + sigIsTempFchanged() <<signal>>
+  }
+
+  class RefreshThread {
+    ' 继承自 QThread
+    - DiskInfoMgr* m_mgr
+    __
+    + RefreshThread(parent: DiskInfoMgr*)
+    # run() : void <<override>>
+  }
+}
+
+' ══════════════════════════════
+' Package: 数据层 Data Layer
+' ══════════════════════════════
+package "数据层 (Data Layer)" #FFF3E0 {
+
+  class CAtaSmart {
+    {static} + MAX_DISK : int = 64
+    {static} + MAX_ATTRIBUTE : int = 30
+    {static} + MAX_SEARCH_PHYSICAL_DRIVE : int = 56
+    {static} + MAX_SEARCH_SCSI_PORT : int = 16
+    {static} + MAX_SEARCH_SCSI_TARGET_ID : int = 8
+    {static} + SCSI_MINIPORT_BUFFER_SIZE : int = 512
+    + vars : CAtaList<ATA_SMART_INFO>
+    + FlagUsbSat : BOOL
+    + FlagUsbIodata : BOOL
+    + FlagUsbSunplus : BOOL
+    + FlagUsbLogitec : BOOL
+    + FlagUsbProlific : BOOL
+    + FlagUsbJmicron : BOOL
+    + FlagUsbCypress : BOOL
+    + FlagUsbASM1352R : BOOL
+    + FlagUsbMemory : BOOL
+    + FlagUsbNVMeJMicron : BOOL
+    + FlagUsbNVMeASMedia : BOOL
+    + FlagUsbNVMeRealtek : BOOL
+    + FlagMegaRAID : BOOL
+    - m_bAtaPassThrough : BOOL
+    - m_bAtaPassThroughSmart : BOOL
+    - m_bNVMeStorageQuery : BOOL
+    - m_Os : OSVERSIONINFOEX
+    __
+    + CAtaSmart()
+    + ~CAtaSmart()
+    + Init(bFlagUsbMemory: BOOL, bWorkaround: BOOL, ...) : VOID
+    + UpdateSmartInfo(i: DWORD) : DWORD
+    + SetAtaPassThroughSmart(flag: BOOL) : VOID
+    + GetSmartAttributeNVMeStorageQuery(driveId: int, ...) : BOOL
+    + GetSmartAttributeNVMeIntel(driveId: int, ...) : BOOL
+    + GetSmartAttributeNVMeSamsung(driveId: int, ...) : BOOL
+    + GetSmartAttributeNVMeJMicron(driveId: int, ...) : BOOL
+    + GetSmartAttributeNVMeASMedia(driveId: int, ...) : BOOL
+    + GetSmartAttributeNVMeRealtek(driveId: int, ...) : BOOL
+  }
+
+  class ATA_SMART_INFO <<struct>> {
+    + Model : TCHAR[]
+    + SerialNumber : TCHAR[]
+    + FirmwareRev : TCHAR[]
+    + PhysicalDriveId : int
+    + ScsiPort : int
+    + ScsiTargetId : int
+    + Temperature : DWORD
+    + IsSsd : BOOL
+    + DiskStatus : DISK_STATUS
+    + DiskVendorId : VENDOR_ID
+    + CommandType : COMMAND_TYPE
+    + InterfaceType : INTERFACE_TYPE
+    + Attribute[MAX_ATTRIBUTE] : SMART_ATTRIBUTE
+    + AttributeCount : int
+    + SmartReadData[512] : UCHAR
+    + PowerOnRawValue : DWORD
+    + AlarmTemperature : int
+    + AlarmHealthStatus : int
+    + Threshold05 : DWORD
+    + ThresholdC5 : DWORD
+    + ThresholdC6 : DWORD
+    + ThresholdFF : DWORD
+    + TotalDiskSize : ULONGLONG
+    + TotalBytesRead : ULONGLONG
+    + TotalBytesWritten : ULONGLONG
+  }
+
+  class SMART_ATTRIBUTE <<struct>> {
+    + Id : BYTE
+    + StatusFlags : WORD
+    + CurrentValue : BYTE
+    + WorstValue : BYTE
+    + RawValue[6] : BYTE
+    + Reserved : BYTE
+  }
+
+  class ListInfo <<struct>> {
+    + iconId : int
+    + attrId : DWORD
+    + attrName : QString
+    + curValue : DWORD
+    + threshold : QString
+    + raw : QString
+  }
+
+  class NVMeInterpreter <<utility>> {
+    {static} + NVMeSmartToATASmart(NVMeSmartBuf: UCHAR*, ATASmartBuf: void*) : void
+  }
+
+  class SlotSpeedGetter {
+    + GetSlotSpeed(...) : DWORD
+  }
+
+  note right of NVMeInterpreter
+    将 NVMe SMART/Health
+    Information Log 原始字节
+    转换为 ATA SMART 属性格式
+    (NVME_ATTRIBUTE = 15)
+  end note
+}
+
+' ══════════════════════════════
+' Package: 枚举类型
+' ══════════════════════════════
+package "枚举类型 (Enumerations)" #FCE4EC {
+
+  enum DISK_STATUS {
+    DISK_STATUS_UNKNOWN = 0
+    DISK_STATUS_GOOD
+    DISK_STATUS_CAUTION
+    DISK_STATUS_BAD
+  }
+
+  enum VENDOR_ID {
+    HDD_GENERAL = 0
+    SSD_GENERAL = 1
+    SSD_VENDOR_INTEL = 5
+    SSD_VENDOR_SAMSUNG = 6
+    SSD_VENDOR_WDC = 11
+    SSD_VENDOR_SEAGATE = 10
+    SSD_VENDOR_NVME = 19
+    SSD_VENDOR_YMTC = 30
+    SSD_VENDOR_MAX = 99
+    USB_VENDOR_BUFFALO = 0x0411
+    USB_VENDOR_ALL = 0xFFFF
+  }
+
+  enum COMMAND_TYPE {
+    CMD_TYPE_UNKNOWN = 0
+    CMD_TYPE_PHYSICAL_DRIVE
+    CMD_TYPE_SCSI_MINIPORT
+    CMD_TYPE_SAT
+    CMD_TYPE_NVME_SAMSUNG
+    CMD_TYPE_NVME_INTEL
+    CMD_TYPE_NVME_STORAGE_QUERY
+    CMD_TYPE_NVME_JMICRON
+    CMD_TYPE_NVME_ASMEDIA
+    CMD_TYPE_NVME_REALTEK
+    CMD_TYPE_NVME_INTEL_RST
+    CMD_TYPE_CSMI
+    CMD_TYPE_WMI
+    CMD_TYPE_MEGARAID
+  }
+
+  enum INTERFACE_TYPE {
+    INTERFACE_TYPE_UNKNOWN = 0
+    INTERFACE_TYPE_PATA
+    INTERFACE_TYPE_SATA
+    INTERFACE_TYPE_USB
+    INTERFACE_TYPE_IEEE1394
+    INTERFACE_TYPE_SCSI
+    INTERFACE_TYPE_NVME
+  }
+
+  enum SMART_STATUS {
+    SMART_STATUS_NO_CHANGE = 0
+    SMART_STATUS_MINOR_CHANGE
+    SMART_STATUS_MAJOR_CHANGE
+  }
+
+  enum TRANSFER_MODE {
+    TRANSFER_MODE_UNKNOWN = 0
+    TRANSFER_MODE_PIO
+    TRANSFER_MODE_SATA_150
+    TRANSFER_MODE_SATA_300
+    TRANSFER_MODE_SATA_600
+  }
+}
+
+' ══════════════════════════════
+' 关系定义
+' ══════════════════════════════
+
+' 组合关系 (Composition)
+DiskInfoMgr *-- "1" RefreshThread      : 包含\nm_refreshThread
+DiskInfoMgr *-- "1" AttrModel          : 包含\nm_model
+DiskInfoMgr *-- "1" CAtaSmart          : 包含\nm_Ata
+CAtaSmart   *-- "0..64" ATA_SMART_INFO : vars数组
+ATA_SMART_INFO *-- "0..30" SMART_ATTRIBUTE : Attribute[]
+
+' 聚合关系 (Aggregation)
+DiskInfoMgr o-- "0..1" CTrayIcon       : 可选\nm_tray
+
+' 关联关系 (Association)
+DiskInfoMgr --> CDiskHealthMainWin     : 持有指针\nm_pMainWin
+CDiskHealthMainWin --> DiskInfoMgr     : 持有指针\nm_pDiskMgr
+AttrModel --> DiskInfoMgr              : 反向引用\nm_pMgr
+RefreshThread --> DiskInfoMgr          : 调用\nm_mgr
+
+' 依赖关系 (Dependency)
+CAtaSmart ..> NVMeInterpreter          : <<use>>
+CAtaSmart ..> SlotSpeedGetter          : <<use>>
+
+' 枚举使用
+ATA_SMART_INFO ..> DISK_STATUS         : <<use>>
+ATA_SMART_INFO ..> VENDOR_ID           : <<use>>
+ATA_SMART_INFO ..> COMMAND_TYPE        : <<use>>
+ATA_SMART_INFO ..> INTERFACE_TYPE      : <<use>>
+
+note top of DiskInfoMgr
+  核心业务控制器
+  运行于: 主线程
+  负责协调所有模块间通信
+end note
+
+note top of RefreshThread
+  后台工作线程
+  调用 DiskInfoMgr::loadInfo()
+  避免阻塞 UI 线程
+end note
+
+note top of CAtaSmart
+  SMART 核心引擎
+  运行于: 工作线程
+  支持 IOCTL / NVMe / WMI
+  多路径读取策略
+end note
+
+@enduml

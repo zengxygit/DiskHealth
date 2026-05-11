@@ -1,0 +1,927 @@
+{
+  "_type": "Project",
+  "_id": "AAAAAAFF+h6SjaM2Hec=",
+  "name": "DiskHealth",
+  "ownedElements": [
+    {
+      "_type": "UMLModel",
+      "_id": "AAAAAAFF+qBWK6M3Hec=",
+      "_parent": { "$ref": "AAAAAAFF+h6SjaM2Hec=" },
+      "name": "DiskHealth Model",
+      "ownedElements": [
+
+        {
+          "_type": "UMLPackage",
+          "_id": "PKG_UI",
+          "_parent": { "$ref": "AAAAAAFF+qBWK6M3Hec=" },
+          "name": "UI Layer (表现层)",
+          "ownedElements": [
+
+            {
+              "_type": "UMLClass",
+              "_id": "CLS_MainWin",
+              "_parent": { "$ref": "PKG_UI" },
+              "name": "CDiskHealthMainWin",
+              "stereotype": "QWidget",
+              "attributes": [
+                { "_type": "UMLAttribute", "_id": "A_MW_01", "name": "m_pDiskMgr", "type": "DiskInfoMgr*", "visibility": "private" },
+                { "_type": "UMLAttribute", "_id": "A_MW_02", "name": "m_pDiskList", "type": "CBPComboBox*", "visibility": "private" },
+                { "_type": "UMLAttribute", "_id": "A_MW_03", "name": "m_pStatusText", "type": "CBPLabel*", "visibility": "private" },
+                { "_type": "UMLAttribute", "_id": "A_MW_04", "name": "m_pTempTxt", "type": "CBPLabel*", "visibility": "private" },
+                { "_type": "UMLAttribute", "_id": "A_MW_05", "name": "m_pAtrriList", "type": "QTableView*", "visibility": "private" },
+                { "_type": "UMLAttribute", "_id": "A_MW_06", "name": "m_pAutoStartCheck", "type": "CBPCheckBox*", "visibility": "private" },
+                { "_type": "UMLAttribute", "_id": "A_MW_07", "name": "m_pRefreshBtn", "type": "CBPImageButton*", "visibility": "private" },
+                { "_type": "UMLAttribute", "_id": "A_MW_08", "name": "m_currentDiskIndex", "type": "int", "visibility": "private" },
+                { "_type": "UMLAttribute", "_id": "A_MW_09", "name": "m_bFirstShow", "type": "bool", "visibility": "private" }
+              ],
+              "operations": [
+                { "_type": "UMLOperation", "_id": "O_MW_01", "name": "CDiskHealthMainWin", "parameters": [{ "_type": "UMLParameter", "_id": "P_MW_01", "name": "pDiskMgr", "type": "DiskInfoMgr*" }], "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_MW_02", "name": "onDiskInfosChanged", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_MW_03", "name": "onLanguageChanged", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_MW_04", "name": "onTempUnitChanged", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_MW_05", "name": "onSwitchToDisk", "parameters": [{ "_type": "UMLParameter", "_id": "P_MW_02", "name": "diskIndex", "type": "int" }], "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_MW_06", "name": "OnClose", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_MW_07", "name": "loadDiskList", "visibility": "private" },
+                { "_type": "UMLOperation", "_id": "O_MW_08", "name": "updateDiskInfo", "parameters": [{ "_type": "UMLParameter", "_id": "P_MW_03", "name": "diskIndex", "type": "int" }], "visibility": "private" },
+                { "_type": "UMLOperation", "_id": "O_MW_09", "name": "updateStatusAndTemp", "parameters": [{ "_type": "UMLParameter", "_id": "P_MW_04", "name": "diskIndex", "type": "int" }], "visibility": "private" },
+                { "_type": "UMLOperation", "_id": "O_MW_10", "name": "updateDiskStatusInfo", "parameters": [{ "_type": "UMLParameter", "_id": "P_MW_05", "name": "diskIndex", "type": "int" }], "visibility": "private" },
+                { "_type": "UMLOperation", "_id": "O_MW_11", "name": "updateAttributeTable", "parameters": [{ "_type": "UMLParameter", "_id": "P_MW_06", "name": "diskIndex", "type": "int" }], "visibility": "private" },
+                { "_type": "UMLOperation", "_id": "O_MW_12", "name": "InitConnections", "visibility": "private" },
+                { "_type": "UMLOperation", "_id": "O_MW_13", "name": "Init", "visibility": "private" },
+                { "_type": "UMLOperation", "_id": "O_MW_14", "name": "InitData", "visibility": "private" },
+                { "_type": "UMLOperation", "_id": "O_MW_15", "name": "onDiskSelected", "parameters": [{ "_type": "UMLParameter", "_id": "P_MW_07", "name": "index", "type": "int" }], "visibility": "private" },
+                { "_type": "UMLOperation", "_id": "O_MW_16", "name": "onRefreshClicked", "visibility": "private" },
+                { "_type": "UMLOperation", "_id": "O_MW_17", "name": "onAutoStartToggled", "parameters": [{ "_type": "UMLParameter", "_id": "P_MW_08", "name": "checked", "type": "bool" }], "visibility": "private" },
+                { "_type": "UMLOperation", "_id": "O_MW_18", "name": "onDoneClicked", "visibility": "private" }
+              ]
+            },
+
+            {
+              "_type": "UMLClass",
+              "_id": "CLS_AttrModel",
+              "_parent": { "$ref": "PKG_UI" },
+              "name": "AttrModel",
+              "stereotype": "QAbstractItemModel",
+              "attributes": [
+                { "_type": "UMLAttribute", "_id": "A_AM_01", "name": "m_pMgr", "type": "DiskInfoMgr*", "visibility": "protected" }
+              ],
+              "operations": [
+                { "_type": "UMLOperation", "_id": "O_AM_01", "name": "AttrModel", "parameters": [{ "_type": "UMLParameter", "_id": "P_AM_01", "name": "parent", "type": "DiskInfoMgr*" }], "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_AM_02", "name": "reset", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_AM_03", "name": "rowCount", "type": "int", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_AM_04", "name": "columnCount", "type": "int", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_AM_05", "name": "data", "type": "QVariant", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_AM_06", "name": "roleNames", "type": "QHash<int,QByteArray>", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_AM_07", "name": "hasChildren", "type": "bool", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_AM_08", "name": "flags", "type": "Qt::ItemFlags", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_AM_09", "name": "index", "type": "QModelIndex", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_AM_10", "name": "parent", "type": "QModelIndex", "visibility": "public" }
+              ]
+            },
+
+            {
+              "_type": "UMLClass",
+              "_id": "CLS_TrayIcon",
+              "_parent": { "$ref": "PKG_UI" },
+              "name": "CTrayIcon",
+              "stereotype": "QObject",
+              "attributes": [
+                { "_type": "UMLAttribute", "_id": "A_TI_01", "name": "m_icoDefault", "type": "QIcon", "visibility": "private" },
+                { "_type": "UMLAttribute", "_id": "A_TI_02", "name": "m_pLeaveTimer", "type": "QTimer*", "visibility": "private" },
+                { "_type": "UMLAttribute", "_id": "A_TI_03", "name": "m_IconRect", "type": "QRect", "visibility": "private" },
+                { "_type": "UMLAttribute", "_id": "A_TI_04", "name": "m_pSysIcon", "type": "QWidget*", "visibility": "private" },
+                { "_type": "UMLAttribute", "_id": "A_TI_05", "name": "m_menu", "type": "QMenu*", "visibility": "private" },
+                { "_type": "UMLAttribute", "_id": "A_TI_06", "name": "m_actions", "type": "QList<QAction*>", "visibility": "private" },
+                { "_type": "UMLAttribute", "_id": "A_TI_07", "name": "showMenu", "type": "bool", "visibility": "private" },
+                { "_type": "UMLAttribute", "_id": "A_TI_08", "name": "firstHover", "type": "bool", "visibility": "private" }
+              ],
+              "operations": [
+                { "_type": "UMLOperation", "_id": "O_TI_01", "name": "CTrayIcon", "parameters": [{ "_type": "UMLParameter", "_id": "P_TI_01", "name": "parent", "type": "QObject*" }], "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_TI_02", "name": "~CTrayIcon", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_TI_03", "name": "OnActivate", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_TI_04", "name": "StarListen", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_TI_05", "name": "CheckMouse", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_TI_06", "name": "inPos", "type": "bool", "parameters": [{ "_type": "UMLParameter", "_id": "P_TI_02", "name": "pt", "type": "QPoint" }], "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_TI_07", "name": "onCreateIcon", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_TI_08", "name": "nativeEventFilter", "type": "bool", "visibility": "protected" },
+                { "_type": "UMLOperation", "_id": "O_TI_S1", "name": "<<signal>> sigExit", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_TI_S2", "name": "<<signal>> sigShowFrame", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_TI_S3", "name": "<<signal>> sigHoverEnter", "parameters": [{ "_type": "UMLParameter", "_id": "P_TI_03", "name": "x", "type": "int" }, { "_type": "UMLParameter", "_id": "P_TI_04", "name": "y", "type": "int" }], "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_TI_S4", "name": "<<signal>> sigHoverLeave", "visibility": "public" }
+              ]
+            }
+
+          ]
+        },
+
+        {
+          "_type": "UMLPackage",
+          "_id": "PKG_MGR",
+          "_parent": { "$ref": "AAAAAAFF+qBWK6M3Hec=" },
+          "name": "Manager Layer (管理层)",
+          "ownedElements": [
+
+            {
+              "_type": "UMLClass",
+              "_id": "CLS_DiskInfoMgr",
+              "_parent": { "$ref": "PKG_MGR" },
+              "name": "DiskInfoMgr",
+              "stereotype": "QObject",
+              "attributes": [
+                { "_type": "UMLAttribute", "_id": "A_DIM_01", "name": "m_Ata", "type": "CAtaSmart", "visibility": "protected" },
+                { "_type": "UMLAttribute", "_id": "A_DIM_02", "name": "m_listDiskInfos", "type": "QVariantList", "visibility": "protected" },
+                { "_type": "UMLAttribute", "_id": "A_DIM_03", "name": "m_model", "type": "AttrModel", "visibility": "protected" },
+                { "_type": "UMLAttribute", "_id": "A_DIM_04", "name": "m_tray", "type": "CTrayIcon*", "visibility": "protected" },
+                { "_type": "UMLAttribute", "_id": "A_DIM_05", "name": "m_pMainWin", "type": "CDiskHealthMainWin*", "visibility": "protected" },
+                { "_type": "UMLAttribute", "_id": "A_DIM_06", "name": "m_refreshThread", "type": "RefreshThread", "visibility": "protected" },
+                { "_type": "UMLAttribute", "_id": "A_DIM_07", "name": "m_pCPUTimer", "type": "QTimer", "visibility": "protected" },
+                { "_type": "UMLAttribute", "_id": "A_DIM_08", "name": "m_EPMTimer", "type": "QTimer", "visibility": "protected" },
+                { "_type": "UMLAttribute", "_id": "A_DIM_09", "name": "m_socket", "type": "QLocalSocket", "visibility": "protected" },
+                { "_type": "UMLAttribute", "_id": "A_DIM_10", "name": "m_strCurLang", "type": "QString", "visibility": "protected" },
+                { "_type": "UMLAttribute", "_id": "A_DIM_11", "name": "m_attrNames", "type": "QMap<QString,QMap<QString,QString>>", "visibility": "protected" },
+                { "_type": "UMLAttribute", "_id": "A_DIM_12", "name": "m_iFirstCautionDisk", "type": "int", "visibility": "protected" },
+                { "_type": "UMLAttribute", "_id": "A_DIM_13", "name": "m_iDiskIndex", "type": "int", "visibility": "protected" },
+                { "_type": "UMLAttribute", "_id": "A_DIM_14", "name": "m_bAutoStart", "type": "bool", "visibility": "protected" },
+                { "_type": "UMLAttribute", "_id": "A_DIM_15", "name": "m_bEPMStart", "type": "bool", "visibility": "protected" },
+                { "_type": "UMLAttribute", "_id": "A_DIM_16", "name": "m_bIsTempF", "type": "bool", "visibility": "protected" },
+                { "_type": "UMLAttribute", "_id": "A_DIM_17", "name": "m_strTheme", "type": "QString", "visibility": "protected" },
+                { "_type": "UMLAttribute", "_id": "A_DIM_18", "name": "m_mapStatus", "type": "QMap<int,int>", "visibility": "protected" }
+              ],
+              "operations": [
+                { "_type": "UMLOperation", "_id": "O_DIM_01", "name": "DiskInfoMgr", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_02", "name": "~DiskInfoMgr", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_03", "name": "loadInfo", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_04", "name": "getDiskInfos", "type": "QVariantList", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_05", "name": "getDiskStatus", "type": "QVariantMap", "parameters": [{ "_type": "UMLParameter", "_id": "P_DIM_01", "name": "index", "type": "int" }], "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_06", "name": "getDiskStatusInfo", "type": "QVariantList", "parameters": [{ "_type": "UMLParameter", "_id": "P_DIM_02", "name": "index", "type": "int" }], "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_07", "name": "getCautionDiskStatusInfo", "type": "QVariantList", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_08", "name": "loadInfoList", "parameters": [{ "_type": "UMLParameter", "_id": "P_DIM_03", "name": "index", "type": "int" }], "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_09", "name": "getModel", "type": "QAbstractItemModel*", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_10", "name": "getCurrentLanguage", "type": "QString", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_11", "name": "setCurrrentLanguage", "parameters": [{ "_type": "UMLParameter", "_id": "P_DIM_04", "name": "lang", "type": "QString" }], "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_12", "name": "isAutoStart", "type": "bool", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_13", "name": "addAutoStart", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_14", "name": "delAutoStart", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_15", "name": "refreshDisks", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_16", "name": "selectDisk", "parameters": [{ "_type": "UMLParameter", "_id": "P_DIM_05", "name": "index", "type": "int" }], "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_17", "name": "isTempF", "type": "bool", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_18", "name": "setIsTempF", "parameters": [{ "_type": "UMLParameter", "_id": "P_DIM_06", "name": "v", "type": "bool" }], "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_19", "name": "doDone", "type": "bool", "parameters": [{ "_type": "UMLParameter", "_id": "P_DIM_07", "name": "check", "type": "bool" }], "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_20", "name": "showWindow", "type": "bool", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_21", "name": "isBusy", "type": "bool", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_22", "name": "doExit", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_23", "name": "showFrame", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_24", "name": "hoverLeave", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_25", "name": "clickRefresh", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_26", "name": "initMultiLanguage", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_27", "name": "setMaminWin", "parameters": [{ "_type": "UMLParameter", "_id": "P_DIM_08", "name": "w", "type": "CDiskHealthMainWin*" }], "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_28", "name": "checkHasSmartError", "type": "bool", "parameters": [{ "_type": "UMLParameter", "_id": "P_DIM_09", "name": "index", "type": "int" }], "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_29", "name": "nativeEventFilter", "type": "bool", "visibility": "protected" },
+                { "_type": "UMLOperation", "_id": "O_DIM_30", "name": "parseArgs", "visibility": "protected" },
+                { "_type": "UMLOperation", "_id": "O_DIM_31", "name": "doHoverEnter", "parameters": [{ "_type": "UMLParameter", "_id": "P_DIM_10", "name": "x", "type": "int" }, { "_type": "UMLParameter", "_id": "P_DIM_11", "name": "y", "type": "int" }], "visibility": "protected" },
+                { "_type": "UMLOperation", "_id": "O_DIM_32", "name": "resetDiskList", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_33", "name": "onReadEPMMsg", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_34", "name": "sendMsgToEPM", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_S1", "name": "<<signal>> sigDiskInfosChanged", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_S2", "name": "<<signal>> sigLanguageChanged", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_S3", "name": "<<signal>> sigIsTempFchanged", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_S4", "name": "<<signal>> sigSwitchDiskIndex", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_S5", "name": "<<signal>> sigAboutRefresh", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_S6", "name": "<<signal>> sigCheckForPop", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_S7", "name": "<<signal>> sigShowFrame", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_S8", "name": "<<signal>> sigHoverEnter", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_S9", "name": "<<signal>> sigHoverLeave", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_DIM_S10", "name": "<<signal>> sigExit", "visibility": "public" }
+              ]
+            },
+
+            {
+              "_type": "UMLClass",
+              "_id": "CLS_RefreshThread",
+              "_parent": { "$ref": "PKG_MGR" },
+              "name": "RefreshThread",
+              "stereotype": "QThread",
+              "attributes": [
+                { "_type": "UMLAttribute", "_id": "A_RT_01", "name": "m_mgr", "type": "DiskInfoMgr*", "visibility": "private" }
+              ],
+              "operations": [
+                { "_type": "UMLOperation", "_id": "O_RT_01", "name": "RefreshThread", "parameters": [{ "_type": "UMLParameter", "_id": "P_RT_01", "name": "parent", "type": "DiskInfoMgr*" }], "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_RT_02", "name": "run", "visibility": "protected" }
+              ]
+            }
+
+          ]
+        },
+
+        {
+          "_type": "UMLPackage",
+          "_id": "PKG_DATA",
+          "_parent": { "$ref": "AAAAAAFF+qBWK6M3Hec=" },
+          "name": "Data Layer (数据层)",
+          "ownedElements": [
+
+            {
+              "_type": "UMLClass",
+              "_id": "CLS_AtaSmart",
+              "_parent": { "$ref": "PKG_DATA" },
+              "name": "CAtaSmart",
+              "attributes": [
+                { "_type": "UMLAttribute", "_id": "A_AS_01", "name": "MAX_DISK", "type": "int", "isStatic": true, "defaultValue": "64", "visibility": "public" },
+                { "_type": "UMLAttribute", "_id": "A_AS_02", "name": "MAX_ATTRIBUTE", "type": "int", "isStatic": true, "defaultValue": "30", "visibility": "public" },
+                { "_type": "UMLAttribute", "_id": "A_AS_03", "name": "MAX_SEARCH_PHYSICAL_DRIVE", "type": "int", "isStatic": true, "defaultValue": "56", "visibility": "public" },
+                { "_type": "UMLAttribute", "_id": "A_AS_04", "name": "vars", "type": "CAtaList<ATA_SMART_INFO>", "visibility": "public" },
+                { "_type": "UMLAttribute", "_id": "A_AS_05", "name": "FlagUsbSat", "type": "BOOL", "visibility": "public" },
+                { "_type": "UMLAttribute", "_id": "A_AS_06", "name": "FlagUsbJmicron", "type": "BOOL", "visibility": "public" },
+                { "_type": "UMLAttribute", "_id": "A_AS_07", "name": "FlagUsbNVMeJMicron", "type": "BOOL", "visibility": "public" },
+                { "_type": "UMLAttribute", "_id": "A_AS_08", "name": "FlagUsbNVMeASMedia", "type": "BOOL", "visibility": "public" },
+                { "_type": "UMLAttribute", "_id": "A_AS_09", "name": "FlagUsbNVMeRealtek", "type": "BOOL", "visibility": "public" },
+                { "_type": "UMLAttribute", "_id": "A_AS_10", "name": "FlagMegaRAID", "type": "BOOL", "visibility": "public" },
+                { "_type": "UMLAttribute", "_id": "A_AS_11", "name": "m_bAtaPassThrough", "type": "BOOL", "visibility": "private" },
+                { "_type": "UMLAttribute", "_id": "A_AS_12", "name": "m_bNVMeStorageQuery", "type": "BOOL", "visibility": "private" }
+              ],
+              "operations": [
+                { "_type": "UMLOperation", "_id": "O_AS_01", "name": "CAtaSmart", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_AS_02", "name": "~CAtaSmart", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_AS_03", "name": "Init", "parameters": [
+                  { "_type": "UMLParameter", "_id": "P_AS_01", "name": "bFlagUsbMemory", "type": "BOOL" },
+                  { "_type": "UMLParameter", "_id": "P_AS_02", "name": "bFlagWorkaroundHD204UI", "type": "BOOL" }
+                ], "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_AS_04", "name": "UpdateSmartInfo", "type": "DWORD", "parameters": [{ "_type": "UMLParameter", "_id": "P_AS_03", "name": "i", "type": "DWORD" }], "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_AS_05", "name": "GetSmartAttributeNVMeStorageQuery", "type": "BOOL", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_AS_06", "name": "GetSmartAttributeNVMeIntel", "type": "BOOL", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_AS_07", "name": "GetSmartAttributeNVMeSamsung", "type": "BOOL", "visibility": "public" },
+                { "_type": "UMLOperation", "_id": "O_AS_08", "name": "SetAtaPassThroughSmart", "parameters": [{ "_type": "UMLParameter", "_id": "P_AS_04", "name": "flag", "type": "BOOL" }], "visibility": "public" }
+              ]
+            },
+
+            {
+              "_type": "UMLClass",
+              "_id": "CLS_SmartInfo",
+              "_parent": { "$ref": "PKG_DATA" },
+              "name": "ATA_SMART_INFO",
+              "stereotype": "struct",
+              "attributes": [
+                { "_type": "UMLAttribute", "_id": "A_SI_01", "name": "Model", "type": "TCHAR[]", "visibility": "public" },
+                { "_type": "UMLAttribute", "_id": "A_SI_02", "name": "SerialNumber", "type": "TCHAR[]", "visibility": "public" },
+                { "_type": "UMLAttribute", "_id": "A_SI_03", "name": "FirmwareRev", "type": "TCHAR[]", "visibility": "public" },
+                { "_type": "UMLAttribute", "_id": "A_SI_04", "name": "Temperature", "type": "DWORD", "visibility": "public" },
+                { "_type": "UMLAttribute", "_id": "A_SI_05", "name": "IsSsd", "type": "BOOL", "visibility": "public" },
+                { "_type": "UMLAttribute", "_id": "A_SI_06", "name": "DiskStatus", "type": "DISK_STATUS", "visibility": "public" },
+                { "_type": "UMLAttribute", "_id": "A_SI_07", "name": "DiskVendorId", "type": "VENDOR_ID", "visibility": "public" },
+                { "_type": "UMLAttribute", "_id": "A_SI_08", "name": "Attribute[MAX_ATTRIBUTE]", "type": "SMART_ATTRIBUTE", "visibility": "public" },
+                { "_type": "UMLAttribute", "_id": "A_SI_09", "name": "AttributeCount", "type": "int", "visibility": "public" },
+                { "_type": "UMLAttribute", "_id": "A_SI_10", "name": "PhysicalDriveId", "type": "int", "visibility": "public" },
+                { "_type": "UMLAttribute", "_id": "A_SI_11", "name": "PowerOnRawValue", "type": "DWORD", "visibility": "public" },
+                { "_type": "UMLAttribute", "_id": "A_SI_12", "name": "AlarmTemperature", "type": "int", "visibility": "public" },
+                { "_type": "UMLAttribute", "_id": "A_SI_13", "name": "AlarmHealthStatus", "type": "int", "visibility": "public" },
+                { "_type": "UMLAttribute", "_id": "A_SI_14", "name": "Threshold05", "type": "DWORD", "visibility": "public" },
+                { "_type": "UMLAttribute", "_id": "A_SI_15", "name": "ThresholdC5", "type": "DWORD", "visibility": "public" },
+                { "_type": "UMLAttribute", "_id": "A_SI_16", "name": "ThresholdC6", "type": "DWORD", "visibility": "public" },
+                { "_type": "UMLAttribute", "_id": "A_SI_17", "name": "CommandType", "type": "COMMAND_TYPE", "visibility": "public" },
+                { "_type": "UMLAttribute", "_id": "A_SI_18", "name": "InterfaceType", "type": "INTERFACE_TYPE", "visibility": "public" }
+              ]
+            },
+
+            {
+              "_type": "UMLClass",
+              "_id": "CLS_SmartAttr",
+              "_parent": { "$ref": "PKG_DATA" },
+              "name": "SMART_ATTRIBUTE",
+              "stereotype": "struct",
+              "attributes": [
+                { "_type": "UMLAttribute", "_id": "A_SA_01", "name": "Id", "type": "BYTE", "visibility": "public" },
+                { "_type": "UMLAttribute", "_id": "A_SA_02", "name": "StatusFlags", "type": "WORD", "visibility": "public" },
+                { "_type": "UMLAttribute", "_id": "A_SA_03", "name": "CurrentValue", "type": "BYTE", "visibility": "public" },
+                { "_type": "UMLAttribute", "_id": "A_SA_04", "name": "WorstValue", "type": "BYTE", "visibility": "public" },
+                { "_type": "UMLAttribute", "_id": "A_SA_05", "name": "RawValue[6]", "type": "BYTE", "visibility": "public" },
+                { "_type": "UMLAttribute", "_id": "A_SA_06", "name": "Reserved", "type": "BYTE", "visibility": "public" }
+              ]
+            },
+
+            {
+              "_type": "UMLClass",
+              "_id": "CLS_NVMeInterp",
+              "_parent": { "$ref": "PKG_DATA" },
+              "name": "NVMeInterpreter",
+              "operations": [
+                { "_type": "UMLOperation", "_id": "O_NI_01", "name": "NVMeSmartToATASmart", "isStatic": true, "parameters": [
+                  { "_type": "UMLParameter", "_id": "P_NI_01", "name": "NVMeSmartBuf", "type": "UCHAR*" },
+                  { "_type": "UMLParameter", "_id": "P_NI_02", "name": "ATASmartBuf", "type": "void*" }
+                ], "visibility": "public" }
+              ]
+            },
+
+            {
+              "_type": "UMLClass",
+              "_id": "CLS_SlotSpeed",
+              "_parent": { "$ref": "PKG_DATA" },
+              "name": "SlotSpeedGetter",
+              "operations": [
+                { "_type": "UMLOperation", "_id": "O_SS_01", "name": "GetSlotSpeed", "type": "DWORD", "visibility": "public" }
+              ]
+            },
+
+            {
+              "_type": "UMLClass",
+              "_id": "CLS_ListInfo",
+              "_parent": { "$ref": "PKG_DATA" },
+              "name": "ListInfo",
+              "stereotype": "struct",
+              "attributes": [
+                { "_type": "UMLAttribute", "_id": "A_LI_01", "name": "iconId", "type": "int", "visibility": "public" },
+                { "_type": "UMLAttribute", "_id": "A_LI_02", "name": "attrId", "type": "DWORD", "visibility": "public" },
+                { "_type": "UMLAttribute", "_id": "A_LI_03", "name": "attrName", "type": "QString", "visibility": "public" },
+                { "_type": "UMLAttribute", "_id": "A_LI_04", "name": "curValue", "type": "DWORD", "visibility": "public" },
+                { "_type": "UMLAttribute", "_id": "A_LI_05", "name": "threshold", "type": "QString", "visibility": "public" },
+                { "_type": "UMLAttribute", "_id": "A_LI_06", "name": "raw", "type": "QString", "visibility": "public" }
+              ]
+            }
+
+          ]
+        },
+
+        {
+          "_type": "UMLPackage",
+          "_id": "PKG_ENUM",
+          "_parent": { "$ref": "AAAAAAFF+qBWK6M3Hec=" },
+          "name": "Enumerations (枚举类型)",
+          "ownedElements": [
+            {
+              "_type": "UMLEnumeration",
+              "_id": "ENUM_DiskStatus",
+              "_parent": { "$ref": "PKG_ENUM" },
+              "name": "DISK_STATUS",
+              "literals": [
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_DS_01", "name": "DISK_STATUS_UNKNOWN" },
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_DS_02", "name": "DISK_STATUS_GOOD" },
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_DS_03", "name": "DISK_STATUS_CAUTION" },
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_DS_04", "name": "DISK_STATUS_BAD" }
+              ]
+            },
+            {
+              "_type": "UMLEnumeration",
+              "_id": "ENUM_CmdType",
+              "_parent": { "$ref": "PKG_ENUM" },
+              "name": "COMMAND_TYPE",
+              "literals": [
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_CT_01", "name": "CMD_TYPE_UNKNOWN" },
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_CT_02", "name": "CMD_TYPE_PHYSICAL_DRIVE" },
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_CT_03", "name": "CMD_TYPE_SCSI_MINIPORT" },
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_CT_04", "name": "CMD_TYPE_SAT" },
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_CT_05", "name": "CMD_TYPE_NVME_STORAGE_QUERY" },
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_CT_06", "name": "CMD_TYPE_NVME_SAMSUNG" },
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_CT_07", "name": "CMD_TYPE_NVME_INTEL" },
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_CT_08", "name": "CMD_TYPE_NVME_JMICRON" },
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_CT_09", "name": "CMD_TYPE_NVME_ASMEDIA" },
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_CT_10", "name": "CMD_TYPE_NVME_REALTEK" },
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_CT_11", "name": "CMD_TYPE_WMI" },
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_CT_12", "name": "CMD_TYPE_CSMI" },
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_CT_13", "name": "CMD_TYPE_MEGARAID" }
+              ]
+            },
+            {
+              "_type": "UMLEnumeration",
+              "_id": "ENUM_InterfaceType",
+              "_parent": { "$ref": "PKG_ENUM" },
+              "name": "INTERFACE_TYPE",
+              "literals": [
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_IT_01", "name": "INTERFACE_TYPE_UNKNOWN" },
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_IT_02", "name": "INTERFACE_TYPE_PATA" },
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_IT_03", "name": "INTERFACE_TYPE_SATA" },
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_IT_04", "name": "INTERFACE_TYPE_USB" },
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_IT_05", "name": "INTERFACE_TYPE_IEEE1394" },
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_IT_06", "name": "INTERFACE_TYPE_SCSI" },
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_IT_07", "name": "INTERFACE_TYPE_NVME" }
+              ]
+            },
+            {
+              "_type": "UMLEnumeration",
+              "_id": "ENUM_VendorId",
+              "_parent": { "$ref": "PKG_ENUM" },
+              "name": "VENDOR_ID",
+              "literals": [
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_VI_01", "name": "HDD_GENERAL = 0" },
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_VI_02", "name": "SSD_GENERAL = 1" },
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_VI_03", "name": "SSD_VENDOR_SAMSUNG = 6" },
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_VI_04", "name": "SSD_VENDOR_INTEL = 5" },
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_VI_05", "name": "SSD_VENDOR_WDC = 11" },
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_VI_06", "name": "SSD_VENDOR_SEAGATE = 10" },
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_VI_07", "name": "SSD_VENDOR_NVME = 19" },
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_VI_08", "name": "SSD_VENDOR_YMTC = 30" },
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_VI_09", "name": "SSD_VENDOR_MAX = 99" }
+              ]
+            },
+            {
+              "_type": "UMLEnumeration",
+              "_id": "ENUM_SmartStatus",
+              "_parent": { "$ref": "PKG_ENUM" },
+              "name": "SMART_STATUS",
+              "literals": [
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_SS_01", "name": "SMART_STATUS_NO_CHANGE" },
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_SS_02", "name": "SMART_STATUS_MINOR_CHANGE" },
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_SS_03", "name": "SMART_STATUS_MAJOR_CHANGE" }
+              ]
+            },
+            {
+              "_type": "UMLEnumeration",
+              "_id": "ENUM_TransferMode",
+              "_parent": { "$ref": "PKG_ENUM" },
+              "name": "TRANSFER_MODE",
+              "literals": [
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_TM_01", "name": "TRANSFER_MODE_UNKNOWN" },
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_TM_02", "name": "TRANSFER_MODE_SATA_150" },
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_TM_03", "name": "TRANSFER_MODE_SATA_300" },
+                { "_type": "UMLEnumerationLiteral", "_id": "EL_TM_04", "name": "TRANSFER_MODE_SATA_600" }
+              ]
+            }
+          ]
+        },
+
+        {
+          "_type": "UMLClassDiagram",
+          "_id": "CD_MAIN",
+          "_parent": { "$ref": "AAAAAAFF+qBWK6M3Hec=" },
+          "name": "DiskHealth 类图",
+          "ownedViews": [
+            {
+              "_type": "UMLClassView",
+              "_id": "CV_MainWin",
+              "model": { "$ref": "CLS_MainWin" },
+              "x": 620, "y": 50, "width": 220, "height": 340
+            },
+            {
+              "_type": "UMLClassView",
+              "_id": "CV_AttrModel",
+              "model": { "$ref": "CLS_AttrModel" },
+              "x": 620, "y": 420, "width": 220, "height": 180
+            },
+            {
+              "_type": "UMLClassView",
+              "_id": "CV_TrayIcon",
+              "model": { "$ref": "CLS_TrayIcon" },
+              "x": 620, "y": 630, "width": 220, "height": 200
+            },
+            {
+              "_type": "UMLClassView",
+              "_id": "CV_DiskInfoMgr",
+              "model": { "$ref": "CLS_DiskInfoMgr" },
+              "x": 200, "y": 200, "width": 250, "height": 480
+            },
+            {
+              "_type": "UMLClassView",
+              "_id": "CV_RefreshThread",
+              "model": { "$ref": "CLS_RefreshThread" },
+              "x": 200, "y": 720, "width": 220, "height": 100
+            },
+            {
+              "_type": "UMLClassView",
+              "_id": "CV_AtaSmart",
+              "model": { "$ref": "CLS_AtaSmart" },
+              "x": 900, "y": 200, "width": 250, "height": 300
+            },
+            {
+              "_type": "UMLClassView",
+              "_id": "CV_SmartInfo",
+              "model": { "$ref": "CLS_SmartInfo" },
+              "x": 1200, "y": 200, "width": 220, "height": 360
+            },
+            {
+              "_type": "UMLClassView",
+              "_id": "CV_SmartAttr",
+              "model": { "$ref": "CLS_SmartAttr" },
+              "x": 1200, "y": 600, "width": 200, "height": 160
+            },
+            {
+              "_type": "UMLClassView",
+              "_id": "CV_NVMeInterp",
+              "model": { "$ref": "CLS_NVMeInterp" },
+              "x": 900, "y": 560, "width": 200, "height": 100
+            },
+            {
+              "_type": "UMLClassView",
+              "_id": "CV_SlotSpeed",
+              "model": { "$ref": "CLS_SlotSpeed" },
+              "x": 900, "y": 690, "width": 200, "height": 80
+            },
+            {
+              "_type": "UMLAssociationView",
+              "_id": "AV_DIM_RT",
+              "model": {
+                "_type": "UMLAssociation",
+                "_id": "ASSOC_DIM_RT",
+                "end1": { "_type": "UMLAssociationEnd", "_id": "AE_DIM_RT_1", "reference": { "$ref": "CLS_DiskInfoMgr" }, "aggregation": "composite", "multiplicity": "1" },
+                "end2": { "_type": "UMLAssociationEnd", "_id": "AE_DIM_RT_2", "reference": { "$ref": "CLS_RefreshThread" }, "multiplicity": "1", "name": "m_refreshThread" }
+              },
+              "head": { "$ref": "CV_DiskInfoMgr" },
+              "tail": { "$ref": "CV_RefreshThread" }
+            },
+            {
+              "_type": "UMLAssociationView",
+              "_id": "AV_DIM_ATA",
+              "model": {
+                "_type": "UMLAssociation",
+                "_id": "ASSOC_DIM_ATA",
+                "end1": { "_type": "UMLAssociationEnd", "_id": "AE_DIM_ATA_1", "reference": { "$ref": "CLS_DiskInfoMgr" }, "aggregation": "composite", "multiplicity": "1" },
+                "end2": { "_type": "UMLAssociationEnd", "_id": "AE_DIM_ATA_2", "reference": { "$ref": "CLS_AtaSmart" }, "multiplicity": "1", "name": "m_Ata" }
+              },
+              "head": { "$ref": "CV_DiskInfoMgr" },
+              "tail": { "$ref": "CV_AtaSmart" }
+            },
+            {
+              "_type": "UMLAssociationView",
+              "_id": "AV_DIM_AM",
+              "model": {
+                "_type": "UMLAssociation",
+                "_id": "ASSOC_DIM_AM",
+                "end1": { "_type": "UMLAssociationEnd", "_id": "AE_DIM_AM_1", "reference": { "$ref": "CLS_DiskInfoMgr" }, "aggregation": "composite", "multiplicity": "1" },
+                "end2": { "_type": "UMLAssociationEnd", "_id": "AE_DIM_AM_2", "reference": { "$ref": "CLS_AttrModel" }, "multiplicity": "1", "name": "m_model" }
+              },
+              "head": { "$ref": "CV_DiskInfoMgr" },
+              "tail": { "$ref": "CV_AttrModel" }
+            },
+            {
+              "_type": "UMLAssociationView",
+              "_id": "AV_DIM_Tray",
+              "model": {
+                "_type": "UMLAssociation",
+                "_id": "ASSOC_DIM_Tray",
+                "end1": { "_type": "UMLAssociationEnd", "_id": "AE_DIM_Tray_1", "reference": { "$ref": "CLS_DiskInfoMgr" }, "aggregation": "shared", "multiplicity": "1" },
+                "end2": { "_type": "UMLAssociationEnd", "_id": "AE_DIM_Tray_2", "reference": { "$ref": "CLS_TrayIcon" }, "multiplicity": "0..1", "name": "m_tray" }
+              },
+              "head": { "$ref": "CV_DiskInfoMgr" },
+              "tail": { "$ref": "CV_TrayIcon" }
+            },
+            {
+              "_type": "UMLAssociationView",
+              "_id": "AV_DIM_Win",
+              "model": {
+                "_type": "UMLAssociation",
+                "_id": "ASSOC_DIM_Win",
+                "end1": { "_type": "UMLAssociationEnd", "_id": "AE_DIM_Win_1", "reference": { "$ref": "CLS_DiskInfoMgr" }, "multiplicity": "1" },
+                "end2": { "_type": "UMLAssociationEnd", "_id": "AE_DIM_Win_2", "reference": { "$ref": "CLS_MainWin" }, "multiplicity": "1", "name": "m_pMainWin" }
+              },
+              "head": { "$ref": "CV_DiskInfoMgr" },
+              "tail": { "$ref": "CV_MainWin" }
+            },
+            {
+              "_type": "UMLAssociationView",
+              "_id": "AV_ATA_SI",
+              "model": {
+                "_type": "UMLAssociation",
+                "_id": "ASSOC_ATA_SI",
+                "end1": { "_type": "UMLAssociationEnd", "_id": "AE_ATA_SI_1", "reference": { "$ref": "CLS_AtaSmart" }, "aggregation": "composite", "multiplicity": "1" },
+                "end2": { "_type": "UMLAssociationEnd", "_id": "AE_ATA_SI_2", "reference": { "$ref": "CLS_SmartInfo" }, "multiplicity": "0..64", "name": "vars[]" }
+              },
+              "head": { "$ref": "CV_AtaSmart" },
+              "tail": { "$ref": "CV_SmartInfo" }
+            },
+            {
+              "_type": "UMLAssociationView",
+              "_id": "AV_SI_SA",
+              "model": {
+                "_type": "UMLAssociation",
+                "_id": "ASSOC_SI_SA",
+                "end1": { "_type": "UMLAssociationEnd", "_id": "AE_SI_SA_1", "reference": { "$ref": "CLS_SmartInfo" }, "aggregation": "composite", "multiplicity": "1" },
+                "end2": { "_type": "UMLAssociationEnd", "_id": "AE_SI_SA_2", "reference": { "$ref": "CLS_SmartAttr" }, "multiplicity": "0..30", "name": "Attribute[]" }
+              },
+              "head": { "$ref": "CV_SmartInfo" },
+              "tail": { "$ref": "CV_SmartAttr" }
+            },
+            {
+              "_type": "UMLDependencyView",
+              "_id": "DV_ATA_NI",
+              "model": {
+                "_type": "UMLDependency",
+                "_id": "DEP_ATA_NI",
+                "source": { "$ref": "CLS_AtaSmart" },
+                "target": { "$ref": "CLS_NVMeInterp" }
+              },
+              "head": { "$ref": "CV_NVMeInterp" },
+              "tail": { "$ref": "CV_AtaSmart" }
+            },
+            {
+              "_type": "UMLDependencyView",
+              "_id": "DV_ATA_SS",
+              "model": {
+                "_type": "UMLDependency",
+                "_id": "DEP_ATA_SS",
+                "source": { "$ref": "CLS_AtaSmart" },
+                "target": { "$ref": "CLS_SlotSpeed" }
+              },
+              "head": { "$ref": "CV_SlotSpeed" },
+              "tail": { "$ref": "CV_AtaSmart" }
+            },
+            {
+              "_type": "UMLDependencyView",
+              "_id": "DV_AM_DIM",
+              "model": {
+                "_type": "UMLDependency",
+                "_id": "DEP_AM_DIM",
+                "source": { "$ref": "CLS_AttrModel" },
+                "target": { "$ref": "CLS_DiskInfoMgr" }
+              },
+              "head": { "$ref": "CV_DiskInfoMgr" },
+              "tail": { "$ref": "CV_AttrModel" }
+            }
+          ]
+        },
+
+        {
+          "_type": "UMLSequenceDiagram",
+          "_id": "SD_STARTUP",
+          "_parent": { "$ref": "AAAAAAFF+qBWK6M3Hec=" },
+          "name": "时序图1：应用启动流程",
+          "ownedViews": [
+            { "_type": "UMLSeqLifelineView", "_id": "SL_Main",  "model": { "_type": "UMLLifeline", "_id": "LF_Main",  "name": "main()", "represent": null }, "x": 80,  "y": 80, "width": 100, "height": 700 },
+            { "_type": "UMLSeqLifelineView", "_id": "SL_DIM",   "model": { "_type": "UMLLifeline", "_id": "LF_DIM",   "name": "DiskInfoMgr", "represent": { "$ref": "CLS_DiskInfoMgr" } }, "x": 250, "y": 80, "width": 120, "height": 700 },
+            { "_type": "UMLSeqLifelineView", "_id": "SL_Win",   "model": { "_type": "UMLLifeline", "_id": "LF_Win",   "name": "CDiskHealthMainWin", "represent": { "$ref": "CLS_MainWin" } }, "x": 440, "y": 80, "width": 140, "height": 700 },
+            { "_type": "UMLSeqLifelineView", "_id": "SL_Tray",  "model": { "_type": "UMLLifeline", "_id": "LF_Tray",  "name": "CTrayIcon", "represent": { "$ref": "CLS_TrayIcon" } }, "x": 640, "y": 80, "width": 100, "height": 700 },
+            { "_type": "UMLSeqLifelineView", "_id": "SL_RT",    "model": { "_type": "UMLLifeline", "_id": "LF_RT",    "name": "RefreshThread", "represent": { "$ref": "CLS_RefreshThread" } }, "x": 800, "y": 80, "width": 120, "height": 700 },
+            { "_type": "UMLSeqLifelineView", "_id": "SL_ATA",   "model": { "_type": "UMLLifeline", "_id": "LF_ATA",   "name": "CAtaSmart", "represent": { "$ref": "CLS_AtaSmart" } }, "x": 980, "y": 80, "width": 100, "height": 700 },
+            {
+              "_type": "UMLSeqMessageView",
+              "_id": "SM_01",
+              "model": {
+                "_type": "UMLMessage", "_id": "MSG_01",
+                "source": { "$ref": "LF_Main" },
+                "target": { "$ref": "LF_DIM" },
+                "name": "1: new DiskInfoMgr()",
+                "messageSort": "createMessage"
+              }
+            },
+            {
+              "_type": "UMLSeqMessageView",
+              "_id": "SM_02",
+              "model": {
+                "_type": "UMLMessage", "_id": "MSG_02",
+                "source": { "$ref": "LF_DIM" },
+                "target": { "$ref": "LF_DIM" },
+                "name": "2: parseArgs() / 读注册表配置",
+                "messageSort": "synchCall"
+              }
+            },
+            {
+              "_type": "UMLSeqMessageView",
+              "_id": "SM_03",
+              "model": {
+                "_type": "UMLMessage", "_id": "MSG_03",
+                "source": { "$ref": "LF_DIM" },
+                "target": { "$ref": "LF_Tray" },
+                "name": "3: new CTrayIcon(this)",
+                "messageSort": "createMessage"
+              }
+            },
+            {
+              "_type": "UMLSeqMessageView",
+              "_id": "SM_04",
+              "model": {
+                "_type": "UMLMessage", "_id": "MSG_04",
+                "source": { "$ref": "LF_Main" },
+                "target": { "$ref": "LF_Win" },
+                "name": "4: new CDiskHealthMainWin(&dim)",
+                "messageSort": "createMessage"
+              }
+            },
+            {
+              "_type": "UMLSeqMessageView",
+              "_id": "SM_05",
+              "model": {
+                "_type": "UMLMessage", "_id": "MSG_05",
+                "source": { "$ref": "LF_Win" },
+                "target": { "$ref": "LF_Win" },
+                "name": "5: Init() / InitConnections() / InitData()",
+                "messageSort": "synchCall"
+              }
+            },
+            {
+              "_type": "UMLSeqMessageView",
+              "_id": "SM_06",
+              "model": {
+                "_type": "UMLMessage", "_id": "MSG_06",
+                "source": { "$ref": "LF_Win" },
+                "target": { "$ref": "LF_DIM" },
+                "name": "6: refreshDisks()",
+                "messageSort": "synchCall"
+              }
+            },
+            {
+              "_type": "UMLSeqMessageView",
+              "_id": "SM_07",
+              "model": {
+                "_type": "UMLMessage", "_id": "MSG_07",
+                "source": { "$ref": "LF_DIM" },
+                "target": { "$ref": "LF_RT" },
+                "name": "7: start() [工作线程]",
+                "messageSort": "asynchCall"
+              }
+            },
+            {
+              "_type": "UMLSeqMessageView",
+              "_id": "SM_08",
+              "model": {
+                "_type": "UMLMessage", "_id": "MSG_08",
+                "source": { "$ref": "LF_RT" },
+                "target": { "$ref": "LF_ATA" },
+                "name": "8: Init(TRUE, ...)",
+                "messageSort": "synchCall"
+              }
+            },
+            {
+              "_type": "UMLSeqMessageView",
+              "_id": "SM_09",
+              "model": {
+                "_type": "UMLMessage", "_id": "MSG_09",
+                "source": { "$ref": "LF_ATA" },
+                "target": { "$ref": "LF_ATA" },
+                "name": "9: 枚举PhysicalDrive0~55 / 读取SMART",
+                "messageSort": "synchCall"
+              }
+            },
+            {
+              "_type": "UMLSeqMessageView",
+              "_id": "SM_10",
+              "model": {
+                "_type": "UMLMessage", "_id": "MSG_10",
+                "source": { "$ref": "LF_RT" },
+                "target": { "$ref": "LF_DIM" },
+                "name": "10: finished() → emit sigDiskInfosChanged",
+                "messageSort": "asynchCall"
+              }
+            },
+            {
+              "_type": "UMLSeqMessageView",
+              "_id": "SM_11",
+              "model": {
+                "_type": "UMLMessage", "_id": "MSG_11",
+                "source": { "$ref": "LF_DIM" },
+                "target": { "$ref": "LF_Win" },
+                "name": "11: onDiskInfosChanged()",
+                "messageSort": "synchCall"
+              }
+            },
+            {
+              "_type": "UMLSeqMessageView",
+              "_id": "SM_12",
+              "model": {
+                "_type": "UMLMessage", "_id": "MSG_12",
+                "source": { "$ref": "LF_Win" },
+                "target": { "$ref": "LF_Win" },
+                "name": "12: loadDiskList() / updateDiskInfo(0)",
+                "messageSort": "synchCall"
+              }
+            }
+          ]
+        },
+
+        {
+          "_type": "UMLSequenceDiagram",
+          "_id": "SD_SWITCH",
+          "_parent": { "$ref": "AAAAAAFF+qBWK6M3Hec=" },
+          "name": "时序图2：用户切换磁盘",
+          "ownedViews": [
+            { "_type": "UMLSeqLifelineView", "_id": "SL2_User", "model": { "_type": "UMLLifeline", "_id": "LF2_User", "name": "用户", "represent": null }, "x": 60, "y": 80, "width": 80, "height": 600 },
+            { "_type": "UMLSeqLifelineView", "_id": "SL2_Win",  "model": { "_type": "UMLLifeline", "_id": "LF2_Win",  "name": "CDiskHealthMainWin", "represent": { "$ref": "CLS_MainWin" } }, "x": 220, "y": 80, "width": 140, "height": 600 },
+            { "_type": "UMLSeqLifelineView", "_id": "SL2_DIM",  "model": { "_type": "UMLLifeline", "_id": "LF2_DIM",  "name": "DiskInfoMgr", "represent": { "$ref": "CLS_DiskInfoMgr" } }, "x": 430, "y": 80, "width": 120, "height": 600 },
+            { "_type": "UMLSeqLifelineView", "_id": "SL2_AM",   "model": { "_type": "UMLLifeline", "_id": "LF2_AM",   "name": "AttrModel", "represent": { "$ref": "CLS_AttrModel" } }, "x": 620, "y": 80, "width": 100, "height": 600 },
+            {
+              "_type": "UMLSeqMessageView", "_id": "SM2_01",
+              "model": { "_type": "UMLMessage", "_id": "MSG2_01", "source": { "$ref": "LF2_User" }, "target": { "$ref": "LF2_Win" }, "name": "1: 选择磁盘 N (ComboBox)", "messageSort": "asynchCall" }
+            },
+            {
+              "_type": "UMLSeqMessageView", "_id": "SM2_02",
+              "model": { "_type": "UMLMessage", "_id": "MSG2_02", "source": { "$ref": "LF2_Win" }, "target": { "$ref": "LF2_Win" }, "name": "2: onDiskSelected(N)", "messageSort": "synchCall" }
+            },
+            {
+              "_type": "UMLSeqMessageView", "_id": "SM2_03",
+              "model": { "_type": "UMLMessage", "_id": "MSG2_03", "source": { "$ref": "LF2_Win" }, "target": { "$ref": "LF2_DIM" }, "name": "3: getDiskStatus(N)", "messageSort": "synchCall" }
+            },
+            {
+              "_type": "UMLSeqMessageView", "_id": "SM2_04",
+              "model": { "_type": "UMLMessage", "_id": "MSG2_04", "source": { "$ref": "LF2_DIM" }, "target": { "$ref": "LF2_Win" }, "name": "4: return {status,temp,...}", "messageSort": "reply" }
+            },
+            {
+              "_type": "UMLSeqMessageView", "_id": "SM2_05",
+              "model": { "_type": "UMLMessage", "_id": "MSG2_05", "source": { "$ref": "LF2_Win" }, "target": { "$ref": "LF2_DIM" }, "name": "5: getDiskStatusInfo(N)", "messageSort": "synchCall" }
+            },
+            {
+              "_type": "UMLSeqMessageView", "_id": "SM2_06",
+              "model": { "_type": "UMLMessage", "_id": "MSG2_06", "source": { "$ref": "LF2_DIM" }, "target": { "$ref": "LF2_Win" }, "name": "6: return [{iconId,attrName,...}]", "messageSort": "reply" }
+            },
+            {
+              "_type": "UMLSeqMessageView", "_id": "SM2_07",
+              "model": { "_type": "UMLMessage", "_id": "MSG2_07", "source": { "$ref": "LF2_Win" }, "target": { "$ref": "LF2_AM" }, "name": "7: reset()", "messageSort": "synchCall" }
+            },
+            {
+              "_type": "UMLSeqMessageView", "_id": "SM2_08",
+              "model": { "_type": "UMLMessage", "_id": "MSG2_08", "source": { "$ref": "LF2_AM" }, "target": { "$ref": "LF2_DIM" }, "name": "8: data(index, role)", "messageSort": "synchCall" }
+            },
+            {
+              "_type": "UMLSeqMessageView", "_id": "SM2_09",
+              "model": { "_type": "UMLMessage", "_id": "MSG2_09", "source": { "$ref": "LF2_DIM" }, "target": { "$ref": "LF2_AM" }, "name": "9: return SMART属性值", "messageSort": "reply" }
+            },
+            {
+              "_type": "UMLSeqMessageView", "_id": "SM2_10",
+              "model": { "_type": "UMLMessage", "_id": "MSG2_10", "source": { "$ref": "LF2_Win" }, "target": { "$ref": "LF2_DIM" }, "name": "10: selectDisk(N)", "messageSort": "synchCall" }
+            }
+          ]
+        },
+
+        {
+          "_type": "UMLSequenceDiagram",
+          "_id": "SD_TRAY",
+          "_parent": { "$ref": "AAAAAAFF+qBWK6M3Hec=" },
+          "name": "时序图3：托盘图标交互",
+          "ownedViews": [
+            { "_type": "UMLSeqLifelineView", "_id": "SL3_OS",   "model": { "_type": "UMLLifeline", "_id": "LF3_OS",   "name": "Windows系统", "represent": null }, "x": 60,  "y": 80, "width": 100, "height": 500 },
+            { "_type": "UMLSeqLifelineView", "_id": "SL3_Tray", "model": { "_type": "UMLLifeline", "_id": "LF3_Tray", "name": "CTrayIcon", "represent": { "$ref": "CLS_TrayIcon" } }, "x": 230, "y": 80, "width": 100, "height": 500 },
+            { "_type": "UMLSeqLifelineView", "_id": "SL3_DIM",  "model": { "_type": "UMLLifeline", "_id": "LF3_DIM",  "name": "DiskInfoMgr", "represent": { "$ref": "CLS_DiskInfoMgr" } }, "x": 400, "y": 80, "width": 120, "height": 500 },
+            { "_type": "UMLSeqLifelineView", "_id": "SL3_Win",  "model": { "_type": "UMLLifeline", "_id": "LF3_Win",  "name": "CDiskHealthMainWin", "represent": { "$ref": "CLS_MainWin" } }, "x": 590, "y": 80, "width": 140, "height": 500 },
+            {
+              "_type": "UMLSeqMessageView", "_id": "SM3_01",
+              "model": { "_type": "UMLMessage", "_id": "MSG3_01", "source": { "$ref": "LF3_OS" }, "target": { "$ref": "LF3_Tray" }, "name": "1: WM_TRAYNOTIFY (鼠标悬停)", "messageSort": "asynchCall" }
+            },
+            {
+              "_type": "UMLSeqMessageView", "_id": "SM3_02",
+              "model": { "_type": "UMLMessage", "_id": "MSG3_02", "source": { "$ref": "LF3_Tray" }, "target": { "$ref": "LF3_Tray" }, "name": "2: nativeEventFilter() / LeaveTimer.start()", "messageSort": "synchCall" }
+            },
+            {
+              "_type": "UMLSeqMessageView", "_id": "SM3_03",
+              "model": { "_type": "UMLMessage", "_id": "MSG3_03", "source": { "$ref": "LF3_Tray" }, "target": { "$ref": "LF3_DIM" }, "name": "3: emit sigHoverEnter(x, y)", "messageSort": "asynchCall" }
+            },
+            {
+              "_type": "UMLSeqMessageView", "_id": "SM3_04",
+              "model": { "_type": "UMLMessage", "_id": "MSG3_04", "source": { "$ref": "LF3_DIM" }, "target": { "$ref": "LF3_Win" }, "name": "4: doHoverEnter() → 显示浮动摘要", "messageSort": "synchCall" }
+            },
+            {
+              "_type": "UMLSeqMessageView", "_id": "SM3_05",
+              "model": { "_type": "UMLMessage", "_id": "MSG3_05", "source": { "$ref": "LF3_Tray" }, "target": { "$ref": "LF3_DIM" }, "name": "5: emit sigHoverLeave()", "messageSort": "asynchCall" }
+            },
+            {
+              "_type": "UMLSeqMessageView", "_id": "SM3_06",
+              "model": { "_type": "UMLMessage", "_id": "MSG3_06", "source": { "$ref": "LF3_DIM" }, "target": { "$ref": "LF3_Win" }, "name": "6: hoverLeave() → 隐藏浮动窗口", "messageSort": "synchCall" }
+            },
+            {
+              "_type": "UMLSeqMessageView", "_id": "SM3_07",
+              "model": { "_type": "UMLMessage", "_id": "MSG3_07", "source": { "$ref": "LF3_OS" }, "target": { "$ref": "LF3_Tray" }, "name": "7: WM_TRAYNOTIFY (双击)", "messageSort": "asynchCall" }
+            },
+            {
+              "_type": "UMLSeqMessageView", "_id": "SM3_08",
+              "model": { "_type": "UMLMessage", "_id": "MSG3_08", "source": { "$ref": "LF3_Tray" }, "target": { "$ref": "LF3_DIM" }, "name": "8: emit sigShowFrame()", "messageSort": "asynchCall" }
+            },
+            {
+              "_type": "UMLSeqMessageView", "_id": "SM3_09",
+              "model": { "_type": "UMLMessage", "_id": "MSG3_09", "source": { "$ref": "LF3_DIM" }, "target": { "$ref": "LF3_Win" }, "name": "9: showFrame() → show() / raise()", "messageSort": "synchCall" }
+            }
+          ]
+        },
+
+        {
+          "_type": "UMLSequenceDiagram",
+          "_id": "SD_REFRESH",
+          "_parent": { "$ref": "AAAAAAFF+qBWK6M3Hec=" },
+          "name": "时序图4：手动刷新磁盘数据",
+          "ownedViews": [
+            { "_type": "UMLSeqLifelineView", "_id": "SL4_User", "model": { "_type": "UMLLifeline", "_id": "LF4_User", "name": "用户", "represent": null }, "x": 60, "y": 80, "width": 80, "height": 550 },
+            { "_type": "UMLSeqLifelineView", "_id": "SL4_Win",  "model": { "_type": "UMLLifeline", "_id": "LF4_Win",  "name": "CDiskHealthMainWin", "represent": { "$ref": "CLS_MainWin" } }, "x": 210, "y": 80, "width": 140, "height": 550 },
+            { "_type": "UMLSeqLifelineView", "_id": "SL4_DIM",  "model": { "_type": "UMLLifeline", "_id": "LF4_DIM",  "name": "DiskInfoMgr", "represent": { "$ref": "CLS_DiskInfoMgr" } }, "x": 420, "y": 80, "width": 120, "height": 550 },
+            { "_type": "UMLSeqLifelineView", "_id": "SL4_RT",   "model": { "_type": "UMLLifeline", "_id": "LF4_RT",   "name": "RefreshThread", "represent": { "$ref": "CLS_RefreshThread" } }, "x": 610, "y": 80, "width": 120, "height": 550 },
+            { "_type": "UMLSeqLifelineView", "_id": "SL4_ATA",  "model": { "_type": "UMLLifeline", "_id": "LF4_ATA",  "name": "CAtaSmart", "represent": { "$ref": "CLS_AtaSmart" } }, "x": 800, "y": 80, "width": 100, "height": 550 },
+            {
+              "_type": "UMLSeqMessageView", "_id": "SM4_01",
+              "model": { "_type": "UMLMessage", "_id": "MSG4_01", "source": { "$ref": "LF4_User" }, "target": { "$ref": "LF4_Win" }, "name": "1: 点击刷新按钮", "messageSort": "asynchCall" }
+            },
+            {
+              "_type": "UMLSeqMessageView", "_id": "SM4_02",
+              "model": { "_type": "UMLMessage", "_id": "MSG4_02", "source": { "$ref": "LF4_Win" }, "target": { "$ref": "LF4_DIM" }, "name": "2: clickRefresh() / refreshDisks()", "messageSort": "synchCall" }
+            },
+            {
+              "_type": "UMLSeqMessageView", "_id": "SM4_03",
+              "model": { "_type": "UMLMessage", "_id": "MSG4_03", "source": { "$ref": "LF4_DIM" }, "target": { "$ref": "LF4_RT" }, "name": "3: start() [异步]", "messageSort": "asynchCall" }
+            },
+            {
+              "_type": "UMLSeqMessageView", "_id": "SM4_04",
+              "model": { "_type": "UMLMessage", "_id": "MSG4_04", "source": { "$ref": "LF4_RT" }, "target": { "$ref": "LF4_ATA" }, "name": "4: Init(TRUE, ...)", "messageSort": "synchCall" }
+            },
+            {
+              "_type": "UMLSeqMessageView", "_id": "SM4_05",
+              "model": { "_type": "UMLMessage", "_id": "MSG4_05", "source": { "$ref": "LF4_ATA" }, "target": { "$ref": "LF4_ATA" }, "name": "5: 重新枚举所有磁盘 / 读取SMART", "messageSort": "synchCall" }
+            },
+            {
+              "_type": "UMLSeqMessageView", "_id": "SM4_06",
+              "model": { "_type": "UMLMessage", "_id": "MSG4_06", "source": { "$ref": "LF4_RT" }, "target": { "$ref": "LF4_DIM" }, "name": "6: finished() → sigDiskInfosChanged", "messageSort": "asynchCall" }
+            },
+            {
+              "_type": "UMLSeqMessageView", "_id": "SM4_07",
+              "model": { "_type": "UMLMessage", "_id": "MSG4_07", "source": { "$ref": "LF4_DIM" }, "target": { "$ref": "LF4_Win" }, "name": "7: onDiskInfosChanged()", "messageSort": "synchCall" }
+            },
+            {
+              "_type": "UMLSeqMessageView", "_id": "SM4_08",
+              "model": { "_type": "UMLMessage", "_id": "MSG4_08", "source": { "$ref": "LF4_Win" }, "target": { "$ref": "LF4_Win" }, "name": "8: loadDiskList() / updateDiskInfo(N)", "messageSort": "synchCall" }
+            }
+          ]
+        }
+
+      ]
+    }
+  ]
+}

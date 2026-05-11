@@ -3,6 +3,9 @@
 #include "../../../DiskCopy/mod.TBQtLib/BPWinFrm.h"
 #include "../DiskInfoMgr.h"
 
+#include <QMenu>
+#include <QActionGroup>
+
 class CBPLabel;
 class CBPComboBox;
 class CBPBox;
@@ -21,14 +24,18 @@ public:
 	// 重写基类方法
 	virtual void OnClose() override;
 
-	// 公开接口供 DiskInfoMgr 回调
+public slots:
 	void onDiskInfosChanged();
 	void onLanguageChanged();
 	void onTempUnitChanged();
 	void onSwitchToDisk(int diskIndex);   // 外部请求切换到指定磁盘（物理索引）
+	void onSettingButtonClicked(); 
 
 protected:
 	void showEvent(QShowEvent* event) override;
+
+	void retranslateUI();          // 刷新所有界面文字
+	void updateLanguageMenuCheck();// 更新菜单项的选中状态
 
 public slots:
 	void onDiskSelected(int index);
@@ -60,6 +67,8 @@ private:
 
 	void updateAutoStartState();
 
+	void initLangList();
+
 
 	DiskInfoMgr*		m_pDiskMgr = nullptr;
 
@@ -71,10 +80,14 @@ private:
 	QFrame*				m_pDiskStatusInfo = nullptr;	
 	QTableView*			m_pAtrriList = nullptr;
 
+	CBPLabel*			m_pStatusTitleLb = nullptr;
 	CBPLabel*			m_pStatusText = nullptr;
 	CBPLabel*			m_pHealthPersentTxt = nullptr;
+
+	CBPLabel*			m_pTempTitleLb = nullptr;
 	CBPLabel*			m_pTempTxt = nullptr;
 	CBPLabel*			m_pTempStatusTxt = nullptr;
+	CBPLabel*			m_pAutoStartLabel = nullptr;
 	CBPCheckBox*		m_pAutoStartCheck = nullptr;
 
 	int					m_currentDiskIndex = -1;
@@ -84,9 +97,12 @@ private:
 	QFrame*				m_pTempWid = nullptr;
 	QFrame*				m_pStatusWid = nullptr;
 
-	QFrame*				m_pLoadingOverlay = nullptr; // 刷新时的加载遮罩
+	QFrame*				m_pLoadingOverlay = nullptr;	// 刷新时的加载遮罩
 
 	CBPPushBtn*			m_pDoneBtn = nullptr;
+
+	QMenu*				m_langMenu = nullptr;			// 语言菜单
+	QActionGroup*		m_langActionGroup = nullptr;	// 菜单项组（实现单选）
 };
 
 // 温度卡片点击处理（独立事件过滤器）
