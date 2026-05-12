@@ -5,6 +5,7 @@
 
 #include <QMenu>
 #include <QActionGroup>
+#include <QLabel>
 
 class CBPLabel;
 class CBPComboBox;
@@ -47,12 +48,9 @@ public slots:
 private:
 	void InitTitle();
 	void Init();
-	void InitDiskList();
 	void InitStatusWid(QBoxLayout* pStatusWid);
 	void InitTempWid(QBoxLayout* pTempWid);
 
-	void InitData();
-	void InitInfo();
 
 	void InitConnections();
 
@@ -69,6 +67,7 @@ private:
 
 	void initLangList();
 
+	void updateLabelText(QLabel* pLabel, const QString& fullText);
 
 	DiskInfoMgr*		m_pDiskMgr = nullptr;
 

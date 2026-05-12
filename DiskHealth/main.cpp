@@ -71,6 +71,12 @@ int main(int argc, char *argv[])
 
 	//QQmlApplicationEngine engine;
 	
+	QFile file("../res/StyleSheet.css");
+	if (file.open(QIODevice::ReadOnly | QIODevice::Text))
+	{
+		QByteArray strStyle = file.readAll();
+		a.setStyleSheet(strStyle);
+	}
 
 	DiskInfoMgr dim;
 	CDiskHealthMainWin mainWin(&dim);

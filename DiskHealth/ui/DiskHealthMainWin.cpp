@@ -1,5 +1,7 @@
 ﻿#include "DiskHealthMainWin.h"
 
+#include <QFontMetrics>
+
 #include "../../../DiskCopy/mod.TBQtLib/BPLabel.h"
 #include "../../../DiskCopy/mod.TBQtLib/BPBox.h"
 #include "../../../DiskCopy/mod.TBQtLib/BPComboBox.h"
@@ -16,8 +18,7 @@ CDiskHealthMainWin::CDiskHealthMainWin(DiskInfoMgr* pDiskMgr, QWidget* parent)
 
 	InitConnections();
 
-	// todo 放线程
-	InitData();
+
 }
 
 CDiskHealthMainWin::~CDiskHealthMainWin()
@@ -279,7 +280,8 @@ void CDiskHealthMainWin::updateStatusAndTemp(int diskIndex)
 		statusIconPath = ":/res/pic_status_none.png";
 		break;
 	}
-	m_pStatusText->setText(statusText);
+	
+	updateLabelText(m_pStatusText, statusText);
 	m_pStatusText->setStyleSheet(QString("font-size:16px; font-weight:bold; color:%1;").arg(statusColor));
 	m_pHealthPersentTxt->setText(life.isEmpty() ? "--" : life);
 	//m_pStatusPix->setPixmap(QPixmap(statusIconPath).scaled(48, 70, Qt::KeepAspectRatio, Qt::SmoothTransformation));
@@ -449,13 +451,16 @@ void CDiskHealthMainWin::InitTitle()
 
 }
 
-void CDiskHealthMainWin::InitDiskList()
+void CDiskHealthMainWin::updateLabelText(QLabel *pLabel, const QString& fullText)
 {
-	do {
-		if (m_pDiskList == nullptr) break;
+	if (!pLabel) return;
+	QFontMetrics fm(pLabel->font());
+	QString elidedText = fm.elidedText(fullText, Qt::ElideRight, pLabel->width());
+	pLabel->setText(elidedText);
 
-	} while (0);
+	pLabel->setToolTip(fullText);
 }
+
 
 void CDiskHealthMainWin::InitStatusWid(QBoxLayout* pStatusLay)
 {
@@ -470,6 +475,10 @@ void CDiskHealthMainWin::InitStatusWid(QBoxLayout* pStatusLay)
 		m_pStatusTitleLb->setText(tr("Status"));
 		m_pStatusTitleLb->setStyleSheet("font-family: \"Segoe UI\"; font-size: 14px; color: #6F7884;");
 		m_pStatusText = new (std::nothrow) CBPLabel;
+
+		m_pStatusText->setFixedWidth(78);
+		m_pStatusText->setWordWrap(false);                  // 禁止自动换行
+		m_pStatusText->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
 
 		m_pHealthPersentTxt = new (std::nothrow) CBPLabel;
 		m_pHealthPersentTxt->setStyleSheet("font-family: \"Segoe UI\"; font-size: 14px; font-weight:600; color: #1F2C40;");
@@ -532,15 +541,46 @@ void CDiskHealthMainWin::Init()
 	
 		m_pDiskList = new(std::nothrow) CBPComboBox;
 		m_pDiskList->setObjectName("DiskList");
-		m_pDiskList->setStyleSheet("#DiskList{border:2px solid #F4F2F7; background: #EBEEF2; border-radius: 4px; font-family: \"Segoe UI\"; font-size: 14px;}");
+		
+		QString style = R"(
+			QComboBox{
+				border:2px solid #F4F2F7; 
+				background: #EBEEF2; 
+				border-radius: 4px; 
+				font-family: "Segoe UI";
+				font-size: 14px;
+			}
+			QComboBox::drop-down {
+				border: none;
+				background: transparent;
+			}
+			QComboBox::down-arrow{
+				border: none;
+				background: transparent;
+				height: 24px;
+				image:url(:/res/dropdown_btn_nor.png);
+			}
+			QComboBox::down-arrow:hover{
+				image:url(:/res/dropdown_btn_hov.png);
+			}
+			QComboBox::down-arrow:pressed{
+				image:url(:/res/dropdown_btn_pre.png);
+			}
+			QComboBox::down-arrow:disabled{
+				image:url(:/res/dropdown_btn_dis.png);
+			}
+		)";
+		
 
+		//m_pDiskList->setStyleSheet("border:2px solid #F4F2F7; background: #EBEEF2; border-radius: 4px; font-family: \"Segoe UI\"; font-size: 14px;");
+		m_pDiskList->setStyleSheet(style);
 
 		m_pTopWid->PackStart(m_pDiskList, true, true, 0);
 		m_pTopWid->AddSpacing(8);
 
 		m_pRefreshBtn = new(std::nothrow) QPushButton;
 
-		QString style = R"(
+		style = R"(
 			QPushButton {
 				background-image: url(:/res/icon_button_refresh_blue18.png);
 				background-repeat: no-repeat;
@@ -683,36 +723,6 @@ void CDiskHealthMainWin::Init()
 		pBottomLayout->addWidget(m_pDoneBtn);
 		
 		AppendContentEx(pBottom, false, false, 0);
-
-
-	} while (0);
-}
-
-void CDiskHealthMainWin::InitData()
-{
-	// test
-	InitDiskList();
-	InitInfo();
-}
-
-void CDiskHealthMainWin::InitInfo()
-{
-	do {
-		if (nullptr == m_pHealthPersentTxt) break;
-		if (nullptr == m_pStatusText) break;
-		//if (nullptr == m_pStatusPix) break;
-
-		if (nullptr == m_pTempTxt) break;
-		if (nullptr == m_pTempStatusTxt) break;
-		
-		m_pHealthPersentTxt->setText(tr("90%"));
-		m_pStatusText->setText(tr("Good"));
-		//m_pStatusPix->setPixmap(QPixmap(":/DiskHealth/img/healthy.png").scaled(24, 24, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-		
-
-		m_pTempTxt->setText(tr("45c"));
-		m_pTempStatusTxt->setText(tr("Normal"));
-	
 
 
 	} while (0);
